@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: batch-log-system
+
+    # 資料庫配置
+  datasource:
+    # PostgreSQL 資料庫配置
+    url: jdbc:postgresql://192.168.31.247:5444/postgres?useUnicode=true&characterEncoding=utf8&useSSL=false&currentSchema=public
+    username: root
+    password: VZq9rWbC3oJYFYdDrjT6edewVHQEKNCBWPDnyqxKyzMTE3CoozBrWnYsi6KkpwKujcFKDytQCrxhTbcxsAB2vswcVgQc9ieYvtpP
+    driver-class-name: org.postgresql.Driver
+
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # Spring Batch 配置
+  batch:
+    jdbc:
+      initialize-schema: always
+      schema: classpath:org/springframework/batch/core/schema-postgresql.sql
+    job:
+      enabled: false # 防止應用啟動時自動執行批次作業
+
+# 應用程式自定義配置
+filePath: /tmp/batch/input
+backupPath: /tmp/batch/backup
+
+# 日誌相關配置
+logging:
+  level:
+    cub.ret.tru: DEBUG
+    org.springframework.batch: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# 伺服器配置
+server:
+  port: 8089
+
+# 管理端點配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,batch
+  endpoint:
+    health:
+      show-details: always

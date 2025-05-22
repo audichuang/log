@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} [%X{executionId}] [%X{jobName}] [%X{stepName}] - %msg%n</Property>
+        <Property name="FILE_LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} [%X{executionId}] [%X{jobName}] [%X{stepName}] - %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- 控制台輸出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <!-- 檔案輸出 -->
+        <RollingFile name="FileAppender" fileName="logs/batch-application.log"
+                     filePattern="logs/batch-application-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${FILE_LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <!-- 自定義資料庫輸出器 -->
+        <DatabaseAppender name="DatabaseAppender"/>
+    </Appenders>
+
+    <Loggers>
+        <!-- Spring Batch 相關日誌 -->
+        <Logger name="org.springframework.batch" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="DatabaseAppender"/>
+        </Logger>
+
+        <!-- 應用程式日誌 -->
+        <Logger name="cub.ret.tru" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="DatabaseAppender"/>
+        </Logger>
+
+        <!-- Root Logger -->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+        </Root>
+    </Loggers>
+</Configuration> 

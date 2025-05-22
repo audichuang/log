@@ -1,0 +1,32 @@
+# IntelliJ IDEA
+.idea/
+.intellijPlatform/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Generated files
+bin/
+gen/ 
+target/
