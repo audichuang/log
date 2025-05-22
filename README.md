@@ -107,7 +107,7 @@ PostgreSQL 資料庫連接資訊：
 - 主機: `192.168.31.247:5444`
 - 資料庫: `postgres`
 - 用戶名: `root`
-- 密碼: `VZq9rWbC3oJYFYdDrjT6edewVHQEKNCBWPDnyqxKyzMTE3CoozBrWnYsi6KkpwKujcFKDytQCrxhTbcxsAB2vswcVgQc9ieYvtpP`
+- 密碼: `123123123adasdasd`
 
 ## 執行代號生成邏輯
 
