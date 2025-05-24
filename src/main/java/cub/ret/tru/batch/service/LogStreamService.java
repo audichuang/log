@@ -170,19 +170,19 @@ public class LogStreamService {
         }
         
         // 其次使用 jobName 查詢
-        if (!ObjectUtils.isEmpty(filter.getJobName())) {
-            return batchLogRepository.findByJobNameOrderByLogTimeDesc(filter.getJobName());
-        }
-        
+//        if (!ObjectUtils.isEmpty(filter.getJobName())) {
+//            return batchLogRepository.findByJobNameOrderByLogTimeDesc(filter.getJobName());
+//        }
+//
         // 如果有時間範圍
 //        if (filter.getStartTime() != null && filter.getEndTime() != null) {
 //            return batchLogRepository.findByLogTimeBetweenOrderByLogTimeDesc(filter.getStartTime(), filter.getEndTime());
 //        }
         
         // 使用 logLevel 查詢
-        if (!ObjectUtils.isEmpty(filter.getLogLevel())) {
-            return batchLogRepository.findByLogLevelOrderByLogTimeDesc(filter.getLogLevel());
-        }
+//        if (!ObjectUtils.isEmpty(filter.getLogLevel())) {
+//            return batchLogRepository.findByLogLevelOrderByLogTimeDesc(filter.getLogLevel());
+//        }
         
         // 如果有關鍵字，使用關鍵字查詢
 //        if (!ObjectUtils.isEmpty(filter.getKeyword())) {

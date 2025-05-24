@@ -57,21 +57,7 @@ public class BatchLogService {
         saveLog(executionId, jobName, null, logLevel, message, null, null, null);
     }
 
-    /**
-     * 根據執行代號查詢日誌
-     */
-    @Transactional(readOnly = true)
-    public List<BatchLogEntity> getLogsByExecutionId(String executionId) {
-        return batchLogRepository.findByExecutionIdOrderByLogTimeAsc(executionId);
-    }
 
-    /**
-     * 根據作業名稱查詢日誌
-     */
-    @Transactional(readOnly = true)
-    public List<BatchLogEntity> getLogsByJobName(String jobName) {
-        return batchLogRepository.findByJobNameOrderByLogTimeDesc(jobName);
-    }
 
     /**
      * 查詢指定執行代號的錯誤日誌

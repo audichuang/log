@@ -1,33 +1,25 @@
+// file: src/main/java/cub/ret/tru/batch/service/LogQueryService.java
 package cub.ret.tru.batch.service;
 
 import cub.ret.tru.batch.dto.LogQueryCriteria;
 import cub.ret.tru.batch.entity.BatchLogEntity;
-import cub.ret.tru.batch.service.query.LogQueryStrategy;
+import cub.ret.tru.batch.repository.BatchLogRepository;
+import cub.ret.tru.specification.BatchLogSpecifications;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class LogQueryService {
 
-    private final List<LogQueryStrategy> strategies;
-
-    @Autowired
-    public LogQueryService(List<LogQueryStrategy> strategies) {
-        this.strategies = strategies.stream()
-                .sorted(Comparator.comparing(LogQueryStrategy::getPriority))
-                .toList();
-
-        log.info("已載入 {} 個查詢策略", strategies.size());
-        strategies.forEach(strategy ->
-                log.debug("策略: {} - 優先級: {}",
-                        strategy.getClass().getSimpleName(),
-                        strategy.getPriority()));
-    }
+    private final BatchLogRepository repository;
 
     public List<BatchLogEntity> queryLogs(LogQueryCriteria criteria) {
         log.debug("執行日誌查詢，條件: {}", criteria);
@@ -35,24 +27,42 @@ public class LogQueryService {
         // 參數驗證和預處理
         criteria = validateAndPreprocessCriteria(criteria);
 
-        // 選擇合適的查詢策略
-        LogQueryStrategy strategy = selectStrategy(criteria);
-        log.debug("選擇策略: {}", strategy.getClass().getSimpleName());
-
-        try {
-            // 執行查詢
-            List<BatchLogEntity> results = strategy.execute(criteria);
-
-            // 後處理結果
-            results = postProcessResults(results, criteria);
-
-            log.debug("查詢完成，返回 {} 筆記錄", results.size());
-            return results;
-
-        } catch (Exception e) {
-            log.error("查詢執行失敗", e);
-            throw new RuntimeException("查詢執行失敗: " + e.getMessage(), e);
+        // 如果是簡單的執行ID查詢，直接使用方法查詢
+        if (isSimpleExecutionIdQuery(criteria)) {
+            log.debug("使用簡單執行ID查詢");
+            return repository.findByExecutionIdOrderByLogTimeDesc(criteria.getExecutionId());
         }
+
+        // 如果是空條件，返回最近日誌
+        if (criteria.isEmpty()) {
+            log.debug("使用預設最近日誌查詢");
+            return repository.findRecentLogs(criteria.getLimit());
+        }
+
+        // 使用 Specification 進行動態查詢
+        log.debug("使用 Specification 動態查詢");
+        Specification<BatchLogEntity> spec = BatchLogSpecifications.buildSpecification(criteria);
+
+        List<BatchLogEntity> results;
+        if (criteria.getLimit() != null && criteria.getLimit() > 0) {
+            PageRequest pageRequest = PageRequest.of(0, criteria.getLimit());
+            results = repository.findAll(spec, pageRequest).getContent();
+        } else {
+            results = repository.findAll(spec);
+        }
+
+        log.debug("查詢完成，返回 {} 筆記錄", results.size());
+        return results;
+    }
+
+    private boolean isSimpleExecutionIdQuery(LogQueryCriteria criteria) {
+        return StringUtils.hasText(criteria.getExecutionId()) &&
+                !StringUtils.hasText(criteria.getJobName()) &&
+                !StringUtils.hasText(criteria.getStepName()) &&
+                !StringUtils.hasText(criteria.getKeyword()) &&
+                (criteria.getLogLevels() == null || criteria.getLogLevels().isEmpty()) &&
+                criteria.getStartTime() == null &&
+                criteria.getEndTime() == null;
     }
 
     private LogQueryCriteria validateAndPreprocessCriteria(LogQueryCriteria criteria) {
@@ -80,20 +90,5 @@ public class LogQueryService {
         }
 
         return criteria;
-    }
-
-    private LogQueryStrategy selectStrategy(LogQueryCriteria criteria) {
-        return strategies.stream()
-                .filter(strategy -> strategy.supports(criteria))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("找不到合適的查詢策略"));
-    }
-
-    private List<BatchLogEntity> postProcessResults(List<BatchLogEntity> results, LogQueryCriteria criteria) {
-        // 如果結果超過限制，進行截取
-        if (results.size() > criteria.getLimit()) {
-            return results.subList(0, criteria.getLimit());
-        }
-        return results;
     }
 }

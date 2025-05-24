@@ -27,9 +27,6 @@ public class OptimizedLogController {
     private final LogQueryService logQueryService;
     private final OptimizedLogStreamService streamService;
 
-    /**
-     * 統一的日誌查詢端點
-     */
     @GetMapping
     public ResponseEntity<List<BatchLogEntity>> queryLogs(
             @RequestParam(required = false) String executionId,
@@ -44,11 +41,6 @@ public class OptimizedLogController {
             @RequestParam(defaultValue = "HISTORICAL") LogQueryCriteria.LogQueryType queryType) {
         
         try {
-            // 參數驗證
-            if (limit != null && (limit < 1 || limit > 1000)) {
-                limit = 100;
-            }
-            
             LogQueryCriteria criteria = LogQueryCriteria.builder()
                     .executionId(executionId)
                     .jobName(jobName)
@@ -66,21 +58,14 @@ public class OptimizedLogController {
             
             return ResponseEntity.ok()
                     .header("X-Total-Count", String.valueOf(logs.size()))
-                    .header("X-Query-Time", String.valueOf(System.currentTimeMillis()))
                     .body(logs);
                     
-        } catch (IllegalArgumentException e) {
-            log.warn("查詢參數錯誤: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             log.error("查詢日誌失敗", e);
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    /**
-     * POST 方式的複雜查詢（支援更複雜的查詢條件）
-     */
     @PostMapping("/query")
     public ResponseEntity<List<BatchLogEntity>> queryLogsPost(@RequestBody LogQueryCriteria criteria) {
         try {
@@ -92,9 +77,6 @@ public class OptimizedLogController {
         }
     }
 
-    /**
-     * 建立 SSE 日誌串流連接
-     */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamLogs(
             @RequestParam(required = false) String executionId,
@@ -105,7 +87,6 @@ public class OptimizedLogController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         
         String connectionId = UUID.randomUUID().toString();
-        log.info("建立日誌串流連接: {}", connectionId);
 
         LogQueryCriteria criteria = LogQueryCriteria.builder()
                 .executionId(executionId)
@@ -121,9 +102,6 @@ public class OptimizedLogController {
         return streamService.createConnection(connectionId, criteria);
     }
 
-    /**
-     * 更新串流過濾條件
-     */
     @PutMapping("/stream/{connectionId}/filter")
     public ResponseEntity<String> updateStreamFilter(
             @PathVariable String connectionId,
@@ -138,9 +116,6 @@ public class OptimizedLogController {
         }
     }
 
-    /**
-     * 關閉串流連接
-     */
     @DeleteMapping("/stream/{connectionId}")
     public ResponseEntity<String> closeStream(@PathVariable String connectionId) {
         try {
@@ -148,49 +123,16 @@ public class OptimizedLogController {
             return ResponseEntity.ok("連接已關閉");
         } catch (Exception e) {
             log.error("關閉連接失敗: {}", connectionId, e);
-            return ResponseEntity.internalServerError().body("關閉失敗: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    /**
-     * 獲取串流狀態
-     */
     @GetMapping("/stream/status")
     public ResponseEntity<Map<String, Object>> getStreamStatus() {
-        int activeConnections = streamService.getActiveConnectionCount();
         return ResponseEntity.ok(Map.of(
-                "activeConnections", activeConnections,
+                "activeConnections", streamService.getActiveConnectionCount(),
                 "timestamp", System.currentTimeMillis(),
                 "serverTime", LocalDateTime.now()
         ));
     }
-
-    /**
-     * 日誌統計端點
-     */
-    @GetMapping("/stats/{executionId}")
-    public ResponseEntity<Map<String, Object>> getLogStats(@PathVariable String executionId) {
-        try {
-            // 這裡可以加入統計邏輯
-            LogQueryCriteria criteria = LogQueryCriteria.builder()
-                    .executionId(executionId)
-                    .build();
-            
-            List<BatchLogEntity> logs = logQueryService.queryLogs(criteria);
-            
-            Map<String, Long> levelCounts = logs.stream()
-                    .collect(java.util.stream.Collectors.groupingBy(
-                            BatchLogEntity::getLogLevel,
-                            java.util.stream.Collectors.counting()));
-            
-            return ResponseEntity.ok(Map.of(
-                    "totalCount", logs.size(),
-                    "levelCounts", levelCounts,
-                    "executionId", executionId
-            ));
-        } catch (Exception e) {
-            log.error("查詢日誌統計失敗: {}", executionId, e);
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-} 
+}
