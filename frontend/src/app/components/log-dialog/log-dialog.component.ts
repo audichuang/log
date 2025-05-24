@@ -1,10 +1,11 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { BatchService } from '../../services/batch.service';
 import { BatchLog, BatchJob } from '../../models/batch-log.model';
+import { Subscription } from 'rxjs';
 
 export interface LogDialogData {
   job: BatchJob;
@@ -16,7 +17,7 @@ export interface LogDialogData {
   templateUrl: './log-dialog.component.html',
   styleUrls: ['./log-dialog.component.scss']
 })
-export class LogDialogComponent implements OnInit {
+export class LogDialogComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -28,6 +29,9 @@ export class LogDialogComponent implements OnInit {
   logLevels = ['ALL', 'DEBUG', 'INFO', 'WARN', 'ERROR'];
   selectedLogLevel = 'ALL';
   searchKeyword = '';
+  
+  private logSubscription?: Subscription;
+  connectionStatus = 'disconnected';
 
   constructor(
     public dialogRef: MatDialogRef<LogDialogComponent>,
@@ -37,6 +41,14 @@ export class LogDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadLogs();
+    this.setupSSEConnection();
+  }
+
+  ngOnDestroy(): void {
+    this.batchService.disconnectLogStream();
+    if (this.logSubscription) {
+      this.logSubscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -75,22 +87,39 @@ export class LogDialogComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    let logObservable;
+    // 使用 SSE 方式載入日誌，有過濾條件時會立即返回結果
+    this.setupSSEConnection();
+  }
 
-    if (this.data.executionId) {
-      logObservable = this.batchService.getLogsByExecutionId(this.data.executionId);
-    } else {
-      logObservable = this.batchService.getLogsByJobName(this.data.job.name);
-    }
+  setupSSEConnection(): void {
+    // 設置過濾條件 - 根據執行代號或作業名稱
+    const filter = {
+      executionId: this.data.executionId,
+      jobName: this.data.executionId ? undefined : this.data.job.name
+    };
 
-    logObservable.subscribe({
+    console.log('建立 SSE 連接，過濾條件:', filter);
+
+    // 建立 SSE 連接
+    this.logSubscription = this.batchService.connectToLogStream(filter).subscribe({
       next: (logs) => {
+        console.log('收到日誌數據:', logs.length, '條');
         this.dataSource.data = logs;
         this.isLoading = false;
+        this.error = '';
       },
       error: (error) => {
+        console.error('SSE 連接錯誤:', error);
         this.error = `載入日誌失敗: ${error.error || error.message}`;
         this.isLoading = false;
+      }
+    });
+
+    // 監控連接狀態
+    this.batchService.getConnectionStatus().subscribe({
+      next: (status) => {
+        this.connectionStatus = status;
+        console.log('SSE 連接狀態:', status);
       }
     });
   }
@@ -140,7 +169,9 @@ export class LogDialogComponent implements OnInit {
   }
 
   refreshLogs(): void {
-    this.loadLogs();
+    // 重新建立 SSE 連接
+    this.batchService.disconnectLogStream();
+    this.setupSSEConnection();
   }
 
   getStatusIcon(status: string): string {

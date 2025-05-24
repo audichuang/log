@@ -37,6 +37,11 @@ node_modules/
 .angular/
 
 logs/
+logs/*.log
+
+.logs/
+
+.log
 
 frontend/.angular/
 frontend/node_modules/

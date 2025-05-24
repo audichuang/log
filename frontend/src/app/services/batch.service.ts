@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { BatchLog, LogFilter, LogStats, BatchJob, BatchExecution } from '../models/batch-log.model';
 
@@ -9,6 +9,9 @@ import { BatchLog, LogFilter, LogStats, BatchJob, BatchExecution } from '../mode
 })
 export class BatchService {
     private readonly apiUrl = environment.apiUrl;
+    private eventSource: EventSource | null = null;
+    private logsSubject = new Subject<BatchLog[]>();
+    private connectionStatus = new BehaviorSubject<string>('disconnected');
 
     constructor(private http: HttpClient) { }
 
@@ -16,97 +19,14 @@ export class BatchService {
      * 獲取所有批次作業列表
      */
     getBatchJobs(): Observable<BatchJob[]> {
-        // 暫時使用模擬數據，之後可以替換為真實 API
-        const mockJobs: BatchJob[] = [
-            {
-                id: 'get-employee-job',
-                name: 'GET_EMPLOYEE_JOB',
-                displayName: '員工資料處理',
-                description: '從外部系統同步員工基本資料，包含薪資和部門信息',
-                status: 'IDLE',
-                lastExecutionTime: '2024-05-24T08:30:00',
-                lastExecutionId: 'exec-001',
-                isScheduled: true,
-                enabled: true,
-                category: '資料同步',
-                estimatedDuration: 15
-            },
-            {
-                id: 'payroll-calculation-job',
-                name: 'PAYROLL_CALCULATION_JOB',
-                displayName: '薪資計算',
-                description: '執行月度薪資計算，包含加班費、獎金和扣除項目',
-                status: 'COMPLETED',
-                lastExecutionTime: '2024-05-23T23:45:00',
-                lastExecutionId: 'exec-002',
-                nextScheduledTime: '2024-05-31T23:45:00',
-                isScheduled: true,
-                enabled: true,
-                category: '財務',
-                estimatedDuration: 45
-            },
-            {
-                id: 'data-backup-job',
-                name: 'DATA_BACKUP_JOB',
-                displayName: '資料備份',
-                description: '每日備份重要業務資料到遠端儲存系統',
-                status: 'RUNNING',
-                lastExecutionTime: '2024-05-24T02:00:00',
-                lastExecutionId: 'exec-003',
-                nextScheduledTime: '2024-05-25T02:00:00',
-                isScheduled: true,
-                enabled: true,
-                category: '系統維護',
-                estimatedDuration: 30
-            },
-            {
-                id: 'report-generation-job',
-                name: 'REPORT_GENERATION_JOB',
-                displayName: '報表生成',
-                description: '生成各種業務報表，包含銷售、財務和人力資源報表',
-                status: 'FAILED',
-                lastExecutionTime: '2024-05-24T06:00:00',
-                lastExecutionId: 'exec-004',
-                nextScheduledTime: '2024-05-24T18:00:00',
-                isScheduled: true,
-                enabled: false,
-                category: '報表',
-                estimatedDuration: 60
-            },
-            {
-                id: 'email-notification-job',
-                name: 'EMAIL_NOTIFICATION_JOB',
-                displayName: '郵件通知',
-                description: '發送系統通知郵件和定期業務提醒',
-                status: 'IDLE',
-                isScheduled: false,
-                enabled: true,
-                category: '通知',
-                estimatedDuration: 5
-            }
-        ];
-
-        return of(mockJobs);
-        // 真實 API 調用：
-        // return this.http.get<BatchJob[]>(`${this.apiUrl}/batch/jobs`);
+        return this.http.get<BatchJob[]>(`${this.apiUrl}/batch/jobs`);
     }
 
     /**
      * 執行特定批次作業
      */
     runBatchJob(jobId: string): Observable<BatchExecution> {
-        // 暫時返回模擬數據
-        const execution: BatchExecution = {
-            executionId: 'exec-' + Date.now(),
-            jobName: jobId,
-            status: 'RUNNING',
-            startTime: new Date().toISOString(),
-            message: `批次作業 ${jobId} 已成功啟動`
-        };
-
-        return of(execution);
-        // 真實 API 調用：
-        // return this.http.post<BatchExecution>(`${this.apiUrl}/batch/jobs/${jobId}/run`, {});
+        return this.http.post<BatchExecution>(`${this.apiUrl}/batch/jobs/${jobId}/run`, {});
     }
 
     /**
@@ -233,6 +153,103 @@ export class BatchService {
         }
 
         return logs.sort((a, b) => new Date(b.logTime).getTime() - new Date(a.logTime).getTime());
+    }
+
+    /**
+     * 建立 SSE 連接來串流日誌
+     */
+    connectToLogStream(filter?: LogFilter): Observable<BatchLog[]> {
+        this.disconnectLogStream(); // 關閉現有連接
+
+        const params = new URLSearchParams();
+        if (filter) {
+            if (filter.executionId) params.append('executionId', filter.executionId);
+            if (filter.jobName) params.append('jobName', filter.jobName);
+            if (filter.logLevel) params.append('logLevel', filter.logLevel);
+            if (filter.keyword) params.append('keyword', filter.keyword);
+            if (filter.startTime) params.append('startTime', filter.startTime);
+            if (filter.endTime) params.append('endTime', filter.endTime);
+        }
+
+        const url = `${this.apiUrl}/batch/logs/stream?${params.toString()}`;
+        this.eventSource = new EventSource(url);
+
+        this.eventSource.onopen = () => {
+            console.log('SSE 連接已建立');
+            this.connectionStatus.next('connected');
+        };
+
+        this.eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (Array.isArray(data)) {
+                    this.logsSubject.next(data);
+                }
+            } catch (error) {
+                console.error('解析 SSE 數據失敗:', error);
+            }
+        };
+
+        this.eventSource.addEventListener('logs', (event: any) => {
+            try {
+                const logs = JSON.parse(event.data);
+                this.logsSubject.next(logs);
+            } catch (error) {
+                console.error('解析日誌數據失敗:', error);
+            }
+        });
+
+        this.eventSource.addEventListener('connected', (event: any) => {
+            console.log('SSE 連接確認:', event.data);
+            this.connectionStatus.next('connected');
+        });
+
+        this.eventSource.onerror = (error) => {
+            console.error('SSE 連接錯誤:', error);
+            this.connectionStatus.next('error');
+            // 5秒後重新連接
+            setTimeout(() => {
+                if (this.eventSource?.readyState === EventSource.CLOSED) {
+                    this.connectToLogStream(filter);
+                }
+            }, 5000);
+        };
+
+        return this.logsSubject.asObservable();
+    }
+
+    /**
+     * 斷開 SSE 連接
+     */
+    disconnectLogStream(): void {
+        if (this.eventSource) {
+            this.eventSource.close();
+            this.eventSource = null;
+            this.connectionStatus.next('disconnected');
+            console.log('SSE 連接已關閉');
+        }
+    }
+
+    /**
+     * 獲取連接狀態
+     */
+    getConnectionStatus(): Observable<string> {
+        return this.connectionStatus.asObservable();
+    }
+
+    /**
+     * 檢查是否已連接
+     */
+    isConnected(): boolean {
+        return this.eventSource?.readyState === EventSource.OPEN;
+    }
+
+    /**
+     * 更新過濾條件
+     */
+    updateLogFilter(filter: LogFilter): void {
+        // 重新建立連接，使用新的過濾條件
+        this.connectToLogStream(filter);
     }
 
     private generateStackTrace(): string {

@@ -21,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/batch")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class BatchController {
 
     private final JobLauncher jobLauncher;
