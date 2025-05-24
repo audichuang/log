@@ -23,6 +23,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -65,7 +66,8 @@ import { LogDialogComponent } from './components/log-dialog/log-dialog.component
         MatPaginatorModule,
         MatSortModule,
         MatCardModule,
-        MatCheckboxModule
+        MatCheckboxModule,
+        MatDividerModule
     ],
     providers: [],
     bootstrap: [AppComponent]

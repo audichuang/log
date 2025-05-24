@@ -81,17 +81,19 @@ public class OptimizedLogController {
     public SseEmitter streamLogs(
             @RequestParam(required = false) String executionId,
             @RequestParam(required = false) String jobName,
-            @RequestParam(required = false) String logLevel,
+            @RequestParam(required = false) List<String> logLevels,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         
         String connectionId = UUID.randomUUID().toString();
+        log.info("建立 SSE 連接: {}, 參數: executionId={}, jobName={}, logLevels={}, keyword={}", 
+                connectionId, executionId, jobName, logLevels, keyword);
 
         LogQueryCriteria criteria = LogQueryCriteria.builder()
                 .executionId(executionId)
                 .jobName(jobName)
-                .logLevels(logLevel != null ? List.of(logLevel) : null)
+                .logLevels(logLevels)
                 .keyword(keyword)
                 .startTime(startTime)
                 .endTime(endTime)
@@ -127,10 +129,22 @@ public class OptimizedLogController {
         }
     }
 
+    @DeleteMapping("/stream/cleanup")
+    public ResponseEntity<String> cleanupAllConnections() {
+        try {
+            streamService.cleanupAllConnections();
+            return ResponseEntity.ok("所有連接已清理完成");
+        } catch (Exception e) {
+            log.error("清理所有連接失敗", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @GetMapping("/stream/status")
     public ResponseEntity<Map<String, Object>> getStreamStatus() {
         return ResponseEntity.ok(Map.of(
                 "activeConnections", streamService.getActiveConnectionCount(),
+                "activePollingTasks", streamService.getActivePollingTaskCount(),
                 "timestamp", System.currentTimeMillis(),
                 "serverTime", LocalDateTime.now()
         ));

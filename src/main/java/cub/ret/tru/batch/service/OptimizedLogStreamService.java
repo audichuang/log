@@ -9,14 +9,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.concurrent.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +27,26 @@ public class OptimizedLogStreamService {
     private final BatchLogRepository repository;
     
     private final Map<String, SseConnection> activeConnections = new ConcurrentHashMap<>();
+    private final Map<String, ScheduledFuture<?>> pollingTasks = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+    
+    // 添加連接清理任務
+    private ScheduledFuture<?> cleanupTask;
+    
+    @PostConstruct
+    public void init() {
+        // 每 5 分鐘檢查一次死連接
+        this.cleanupTask = scheduler.scheduleWithFixedDelay(() -> {
+            cleanupDeadConnections();
+        }, 5, 5, TimeUnit.MINUTES);
+        
+        log.info("OptimizedLogStreamService 已初始化，啟動定期清理任務");
+    }
 
     public SseEmitter createConnection(String connectionId, LogQueryCriteria criteria) {
-        log.info("建立 SSE 連接: {}", connectionId);
+        log.info("建立 SSE 連接: {}, 目前活躍連接數: {}", connectionId, activeConnections.size());
         
-        SseEmitter emitter = new SseEmitter(0L);
+        SseEmitter emitter = new SseEmitter(30 * 60 * 1000L); // 30 分鐘 = 1800000ms
         SseConnection connection = new SseConnection(emitter, criteria, LocalDateTime.now());
         
         setupEmitterCallbacks(connectionId, emitter);
@@ -44,12 +58,19 @@ public class OptimizedLogStreamService {
             startPolling(connectionId);
         }
 
+        log.info("SSE 連接已建立: {}, 總連接數: {}, 超時設定: 30分鐘", connectionId, activeConnections.size());
         return emitter;
     }
     
     private void setupEmitterCallbacks(String connectionId, SseEmitter emitter) {
-        emitter.onCompletion(() -> cleanupConnection(connectionId));
-        emitter.onTimeout(() -> cleanupConnection(connectionId));
+        emitter.onCompletion(() -> {
+            log.info("SSE 連接正常完成: {}", connectionId);
+            cleanupConnection(connectionId);
+        });
+        emitter.onTimeout(() -> {
+            log.warn("SSE 連接超時: {}", connectionId);
+            cleanupConnection(connectionId);
+        });
         emitter.onError((ex) -> {
             log.error("SSE 連接錯誤: {}", connectionId, ex);
             cleanupConnection(connectionId);
@@ -58,14 +79,23 @@ public class OptimizedLogStreamService {
     
     private void sendInitialData(String connectionId) {
         SseConnection connection = activeConnections.get(connectionId);
-        if (connection == null) return;
+        if (connection == null) {
+            log.warn("連接不存在，無法發送初始數據: {}", connectionId);
+            return;
+        }
         
         try {
-            connection.emitter.send(SseEmitter.event().name("connected").data("連接已建立"));
+            Map<String, Object> connectionInfo = Map.of(
+                "message", "連接已建立",
+                "connectionId", connectionId,
+                "timestamp", LocalDateTime.now()
+            );
+            connection.emitter.send(SseEmitter.event().name("connected").data(connectionInfo));
             
             List<BatchLogEntity> logs = logQueryService.queryLogs(connection.criteria);
             if (!logs.isEmpty()) {
                 connection.emitter.send(SseEmitter.event().name("logs").data(logs));
+                log.debug("發送初始日誌數據: {} 條, 連接: {}", logs.size(), connectionId);
             }
         } catch (Exception e) {
             log.error("發送初始數據失敗: {}", connectionId, e);
@@ -80,9 +110,12 @@ public class OptimizedLogStreamService {
     
     @Async
     public void startPolling(String connectionId) {
-        scheduler.scheduleWithFixedDelay(() -> {
+        ScheduledFuture<?> pollingTask = scheduler.scheduleWithFixedDelay(() -> {
             SseConnection connection = activeConnections.get(connectionId);
-            if (connection == null) return;
+            if (connection == null) {
+                log.debug("連接已關閉，停止輪詢: {}", connectionId);
+                return;
+            }
             
             try {
                 List<BatchLogEntity> newLogs = repository.findRecentLogsAfter(connection.lastQueryTime, 50);
@@ -90,43 +123,98 @@ public class OptimizedLogStreamService {
                 if (!newLogs.isEmpty()) {
                     connection.emitter.send(SseEmitter.event().name("logs").data(newLogs));
                     connection.lastQueryTime = LocalDateTime.now();
+                    log.debug("發送新日誌: {} 條, 連接: {}", newLogs.size(), connectionId);
                 }
             } catch (IOException e) {
-                log.error("發送日誌失敗: {}", connectionId, e);
+                log.error("發送日誌失敗，關閉連接: {}", connectionId, e);
                 cleanupConnection(connectionId);
             } catch (Exception e) {
-                log.error("輪詢失敗: {}", connectionId, e);
+                log.error("輪詢失敗: {}, 錯誤: {}", connectionId, e.getMessage());
             }
         }, 1, 2, TimeUnit.SECONDS);
+        
+        pollingTasks.put(connectionId, pollingTask);
+        log.info("開始輪詢任務: {}", connectionId);
     }
     
     public void updateFilter(String connectionId, LogQueryCriteria newCriteria) {
         SseConnection connection = activeConnections.get(connectionId);
         if (connection != null) {
+            log.info("更新過濾條件: {}", connectionId);
             connection.criteria = newCriteria;
             sendInitialData(connectionId);
+        } else {
+            log.warn("嘗試更新不存在的連接過濾條件: {}", connectionId);
         }
     }
     
     private void cleanupConnection(String connectionId) {
-        activeConnections.remove(connectionId);
-        log.info("已清理連接: {}", connectionId);
-    }
-    
-    public void closeConnection(String connectionId) {
-        SseConnection connection = activeConnections.get(connectionId);
+        SseConnection connection = activeConnections.remove(connectionId);
+        
+        ScheduledFuture<?> pollingTask = pollingTasks.remove(connectionId);
+        if (pollingTask != null && !pollingTask.isCancelled()) {
+            boolean cancelled = pollingTask.cancel(true);
+            log.info("輪詢任務已取消: {}, 成功: {}", connectionId, cancelled);
+        }
+        
         if (connection != null) {
             try {
                 connection.emitter.complete();
             } catch (Exception e) {
-                log.warn("關閉連接失敗: {}", connectionId, e);
+                log.debug("關閉 SSE 發射器時出錯: {}", connectionId, e);
             }
         }
+        
+        log.info("連接已完全清理: {}, 剩餘活躍連接: {}, 剩餘輪詢任務: {}", 
+                connectionId, activeConnections.size(), pollingTasks.size());
+    }
+    
+    public void closeConnection(String connectionId) {
+        log.info("手動關閉連接: {}", connectionId);
         cleanupConnection(connectionId);
     }
     
     public int getActiveConnectionCount() {
         return activeConnections.size();
+    }
+    
+    public int getActivePollingTaskCount() {
+        return pollingTasks.size();
+    }
+    
+    public void cleanupAllConnections() {
+        log.info("清理所有連接，當前連接數: {}, 輪詢任務數: {}", 
+                activeConnections.size(), pollingTasks.size());
+        
+        Set<String> connectionIds = new HashSet<>(activeConnections.keySet());
+        for (String connectionId : connectionIds) {
+            cleanupConnection(connectionId);
+        }
+        
+        log.info("所有連接已清理完成");
+    }
+    
+    private void cleanupDeadConnections() {
+        log.info("清理死連接，當前連接數: {}, 輪詢任務數: {}", 
+                activeConnections.size(), pollingTasks.size());
+        
+        Set<String> connectionIds = new HashSet<>(activeConnections.keySet());
+        for (String connectionId : connectionIds) {
+            SseConnection connection = activeConnections.get(connectionId);
+            if (connection == null) {
+                cleanupConnection(connectionId);
+                continue;
+            }
+            
+            // 檢查連接是否超過最大空閒時間（30分鐘）
+            LocalDateTime now = LocalDateTime.now();
+            if (connection.lastQueryTime.plusMinutes(30).isBefore(now)) {
+                log.warn("連接 {} 已超過最大空閒時間，執行清理", connectionId);
+                cleanupConnection(connectionId);
+            }
+        }
+        
+        log.info("所有死連接已清理完成");
     }
     
     private static class SseConnection {

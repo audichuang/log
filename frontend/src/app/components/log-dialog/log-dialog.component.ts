@@ -6,7 +6,8 @@ import { MatSort } from '@angular/material/sort';
 import { BatchService } from '../../services/batch.service';
 import { OptimizedLogService } from '../../services/optimized-log.service';
 import { BatchLog, BatchJob, LogQueryCriteria, LOG_LEVELS } from '../../models/batch-log.model';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject, combineLatest } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 export interface LogDialogData {
   job: BatchJob;
@@ -27,13 +28,9 @@ export class LogDialogComponent implements OnInit, OnDestroy {
   isLoading = false;
   error = '';
   
-  // 新的多選日誌級別功能
+  // 多選日誌級別功能
   readonly logLevels = LOG_LEVELS;
   selectedLogLevels: string[] = [];
-  
-  // 保留舊的單選功能以向後兼容
-  legacyLogLevels = ['ALL', 'DEBUG', 'INFO', 'WARN', 'ERROR'];
-  selectedLogLevel = 'ALL';
   
   searchKeyword = '';
   
@@ -41,11 +38,13 @@ export class LogDialogComponent implements OnInit, OnDestroy {
   selectedExecutionId = 'ALL';
   isLoadingExecutions = false;
   
-  // 查詢模式切換
-  useOptimizedMode = true;
-  
-  private logSubscription?: Subscription;
   connectionStatus = 'disconnected';
+
+  // RxJS Subjects for reactive updates
+  private readonly logLevelChange$ = new Subject<string[]>();
+  private readonly executionIdChange$ = new Subject<string>();
+  private readonly keywordChange$ = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     public dialogRef: MatDialogRef<LogDialogComponent>,
@@ -55,158 +54,195 @@ export class LogDialogComponent implements OnInit, OnDestroy {
   ) {
     // 預設選擇所有日誌級別
     this.selectedLogLevels = this.logLevels.map(level => level.value);
-    console.log('LogDialogComponent 初始化，使用優化模式:', this.useOptimizedMode);
+    console.log('LogDialogComponent 初始化，使用優化模式');
   }
 
   ngOnInit(): void {
-    this.loadJobExecutions();
+    this.setupReactiveFilterStream();
+    this.loadExecutions();
+    this.setupInitialConnection();
+    this.subscribeToConnectionStatus();
   }
 
   ngOnDestroy(): void {
-    this.batchService.disconnectLogStream();
-    if (this.logSubscription) {
-      this.logSubscription.unsubscribe();
-    }
+    // 發送銷毀信號，停止所有observable
+    this.destroy$.next();
+    this.destroy$.complete();
+    
+    // 確保斷開SSE連接
+    this.optimizedLogService.disconnectLogStream();
+    
+    console.log('LogDialogComponent 已銷毀，所有連接已清理');
+  }
+
+  /**
+   * 設置響應式過濾流，使用RxJS管理所有過濾條件變化
+   */
+  private setupReactiveFilterStream(): void {
+    // 合併所有過濾條件變化，使用debounce避免頻繁請求
+    combineLatest([
+      this.logLevelChange$.pipe(
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      ),
+      this.executionIdChange$.pipe(distinctUntilChanged()),
+      this.keywordChange$.pipe(distinctUntilChanged())
+    ]).pipe(
+      debounceTime(300), // 300ms延遲，避免過於頻繁的查詢
+      tap(() => {
+        console.log('過濾條件已變化，準備重新查詢');
+        // 確保先斷開舊連接
+        this.optimizedLogService.disconnectLogStream();
+      }),
+      switchMap(([logLevels, executionId, keyword]) => {
+        // 建立新的查詢連接
+        return this.createSSEConnection({
+          logLevels,
+          executionId: executionId === 'ALL' ? undefined : executionId,
+          keyword: keyword || undefined
+        });
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (logs) => {
+        console.log('收到響應式查詢結果:', logs.length, '條日誌');
+        this.dataSource.data = logs;
+        this.isLoading = false;
+        this.error = '';
+      },
+      error: (error) => {
+        console.error('響應式查詢錯誤:', error);
+        this.error = `查詢失敗: ${error.message || error}`;
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * 建立SSE連接的統一方法
+   */
+  private createSSEConnection(criteria: Partial<LogQueryCriteria>) {
+    this.isLoading = true;
+    
+    // 根據選擇的執行ID或作業名稱設置查詢條件
+    const finalCriteria: Partial<LogQueryCriteria> = {
+      ...criteria,
+      jobName: criteria.executionId ? undefined : this.data.job.name
+    };
+
+    console.log('建立SSE連接，查詢條件:', finalCriteria);
+    return this.optimizedLogService.streamLogs(finalCriteria);
+  }
+
+  /**
+   * 訂閱連線狀態
+   */
+  private subscribeToConnectionStatus(): void {
+    this.optimizedLogService.getConnectionStatus()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.connectionStatus = status;
+        console.log('SSE連線狀態變更:', status);
+      });
+  }
+
+  /**
+   * 設置初始連接
+   */
+  private setupInitialConnection(): void {
+    // 觸發初始查詢
+    this.logLevelChange$.next(this.selectedLogLevels);
+    this.executionIdChange$.next(this.selectedExecutionId);
+    this.keywordChange$.next(this.searchKeyword);
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-
-    // 自定義過濾邏輯
-    this.dataSource.filterPredicate = (data: BatchLog, filter: string): boolean => {
-      if (!filter) return true;
-
-      try {
-        const searchFilter = JSON.parse(filter);
-
-        // 日誌級別過濾
-        if (searchFilter.logLevel && searchFilter.logLevel !== 'ALL' && data.logLevel !== searchFilter.logLevel) {
-          return false;
-        }
-
-        // 關鍵字過濾
-        if (searchFilter.keyword) {
-          const keyword = searchFilter.keyword.toLowerCase();
-          const messageMatch = data.message.toLowerCase().includes(keyword);
-          const loggerMatch = data.loggerName.toLowerCase().includes(keyword);
-          const stackMatch = data.exceptionStack ? data.exceptionStack.toLowerCase().includes(keyword) : false;
-          return messageMatch || loggerMatch || stackMatch;
-        }
-
-        return true;
-      } catch {
-        return true;
-      }
-    };
   }
 
-  loadLogs(): void {
-    this.isLoading = true;
-    this.error = '';
-
-    // 使用 SSE 方式載入日誌，有過濾條件時會立即返回結果
-    this.setupSSEConnection();
-  }
-
-  setupSSEConnection(): void {
-    console.log('設置 SSE 連接，使用優化模式:', this.useOptimizedMode);
+  loadExecutions(): void {
+    if (!this.data.job.name) return;
     
-    if (this.useOptimizedMode) {
-      // 使用新的優化服務
-      const criteria: Partial<LogQueryCriteria> = {};
-      
-      // 如果選擇了特定的執行ID，優先使用執行ID查詢
-      if (this.selectedExecutionId !== 'ALL') {
-        criteria.executionId = this.selectedExecutionId;
-      } else {
-        // 否則使用作業名稱查詢
-        criteria.jobName = this.data.job.name;
-      }
-      
-      // 添加選中的日誌級別
-      if (this.selectedLogLevels.length > 0 && this.selectedLogLevels.length < this.logLevels.length) {
-        criteria.logLevels = this.selectedLogLevels;
-      }
-
-      console.log('建立優化 SSE 連接，查詢條件:', criteria);
-
-      // 建立 SSE 連接
-      this.logSubscription = this.optimizedLogService.streamLogs(criteria).subscribe({
-        next: (logs) => {
-          console.log('收到日誌數據:', logs.length, '條');
-          this.dataSource.data = logs;
-          this.isLoading = false;
-          this.error = '';
+    this.isLoadingExecutions = true;
+    this.batchService.getJobExecutions(this.data.job.name)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (executions) => {
+          this.availableExecutions = executions.map(exec => ({
+            executionId: exec.executionId,
+            executionTime: exec.startTime,
+            status: exec.status
+          }));
+          this.isLoadingExecutions = false;
         },
         error: (error) => {
-          console.error('優化 SSE 連接錯誤:', error);
-          this.error = `載入日誌失敗: ${error.error || error.message}`;
-          this.isLoading = false;
+          console.error('載入執行記錄失敗:', error);
+          this.error = '載入執行記錄失敗';
+          this.isLoadingExecutions = false;
         }
       });
+  }
 
-      // 監控連接狀態
-      this.optimizedLogService.getConnectionStatus().subscribe({
-        next: (status) => {
-          this.connectionStatus = status;
-          console.log('優化 SSE 連接狀態:', status);
-        }
-      });
+  /**
+   * 多選下拉式選單的選擇變化處理
+   */
+  onLogLevelsSelectionChange(selectedLevels: string[]): void {
+    this.selectedLogLevels = selectedLevels;
+    console.log('下拉式選單日誌級別已變化:', this.selectedLogLevels);
+    this.logLevelChange$.next([...this.selectedLogLevels]);
+  }
+
+  /**
+   * 移除單個日誌級別
+   */
+  removeLogLevel(level: string): void {
+    this.selectedLogLevels = this.selectedLogLevels.filter(l => l !== level);
+    console.log('移除日誌級別:', level, '剩餘:', this.selectedLogLevels);
+    this.logLevelChange$.next([...this.selectedLogLevels]);
+  }
+
+  toggleAllLogLevels(): void {
+    if (this.selectedLogLevels.length === this.logLevels.length) {
+      this.selectedLogLevels = [];
     } else {
-      // 使用舊的服務（向後兼容）
-      const filter: any = {};
-      
-      if (this.selectedExecutionId !== 'ALL') {
-        filter.executionId = this.selectedExecutionId;
-      } else {
-        filter.jobName = this.data.job.name;
-      }
-
-      console.log('建立傳統 SSE 連接，過濾條件:', filter);
-
-      this.logSubscription = this.batchService.connectToLogStream(filter).subscribe({
-        next: (logs) => {
-          console.log('收到日誌數據:', logs.length, '條');
-          this.dataSource.data = logs;
-          this.isLoading = false;
-          this.error = '';
-        },
-        error: (error) => {
-          console.error('傳統 SSE 連接錯誤:', error);
-          this.error = `載入日誌失敗: ${error.error || error.message}`;
-          this.isLoading = false;
-        }
-      });
-
-      this.batchService.getConnectionStatus().subscribe({
-        next: (status) => {
-          this.connectionStatus = status;
-          console.log('傳統 SSE 連接狀態:', status);
-        }
-      });
+      this.selectedLogLevels = this.logLevels.map(level => level.value);
     }
+    
+    console.log('切換全選狀態:', this.selectedLogLevels);
+    this.logLevelChange$.next([...this.selectedLogLevels]);
   }
 
-  applyFilter(): void {
-    const filterValue = JSON.stringify({
-      logLevel: this.selectedLogLevel,
-      keyword: this.searchKeyword
-    });
-
-    this.dataSource.filter = filterValue;
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+  /**
+   * 獲取日誌級別顏色
+   */
+  getLogLevelColor(level: string): string {
+    const logLevel = this.logLevels.find(l => l.value === level);
+    return logLevel?.color || '#6c757d';
   }
 
-  onLogLevelChange(): void {
-    this.applyFilter();
+  /**
+   * 響應式方法：執行ID變化
+   */
+  onExecutionIdChange(): void {
+    console.log('執行ID已變化:', this.selectedExecutionId);
+    this.executionIdChange$.next(this.selectedExecutionId);
   }
 
+  /**
+   * 響應式方法：關鍵字變化
+   */
   onKeywordChange(): void {
-    this.applyFilter();
+    console.log('搜尋關鍵字已變化:', this.searchKeyword);
+    this.keywordChange$.next(this.searchKeyword);
+  }
+
+  /**
+   * 手動刷新
+   */
+  refreshLogs(): void {
+    console.log('手動刷新日誌');
+    this.optimizedLogService.disconnectLogStream();
+    this.setupInitialConnection();
   }
 
   getLogLevelClass(level: string): string {
@@ -230,16 +266,6 @@ export class LogDialogComponent implements OnInit, OnDestroy {
 
   closeDialog(): void {
     this.dialogRef.close();
-  }
-
-  refreshLogs(): void {
-    // 重新建立 SSE 連接
-    if (this.useOptimizedMode) {
-      this.optimizedLogService.disconnectLogStream();
-    } else {
-      this.batchService.disconnectLogStream();
-    }
-    this.setupSSEConnection();
   }
 
   getStatusIcon(status: string): string {
@@ -273,93 +299,6 @@ export class LogDialogComponent implements OnInit, OnDestroy {
   }
 
   showExceptionStack(exceptionStack: string): void {
-    // 這裡可以開啟另一個彈窗顯示例外堆疊
     console.log('Exception Stack:', exceptionStack);
-  }
-
-  /**
-   * 載入作業的執行歷史記錄
-   */
-  loadJobExecutions(): void {
-    this.isLoadingExecutions = true;
-    
-    this.batchService.getJobExecutions(this.data.job.name).subscribe({
-      next: (executions) => {
-        this.availableExecutions = executions.map(exec => ({
-          executionId: exec.executionId,
-          executionTime: exec.startTime,
-          status: exec.status
-        }));
-        this.isLoadingExecutions = false;
-        
-        // 自動載入日誌
-        this.loadLogs();
-      },
-      error: (error) => {
-        console.error('載入執行歷史失敗:', error);
-        this.isLoadingExecutions = false;
-        // 即使載入執行歷史失敗，仍然嘗試載入日誌
-        this.loadLogs();
-      }
-    });
-  }
-
-  /**
-   * 當執行ID選擇改變時
-   */
-  onExecutionIdChange(): void {
-    console.log('執行ID選擇改變:', this.selectedExecutionId);
-    this.refreshLogs();
-  }
-
-  /**
-   * 多選日誌級別相關方法
-   */
-  isLogLevelSelected(level: string): boolean {
-    return this.selectedLogLevels.includes(level);
-  }
-
-  onLogLevelToggle(level: string, checked: boolean): void {
-    if (checked) {
-      if (!this.selectedLogLevels.includes(level)) {
-        this.selectedLogLevels.push(level);
-      }
-    } else {
-      this.selectedLogLevels = this.selectedLogLevels.filter(l => l !== level);
-    }
-    console.log('已選擇的日誌級別:', this.selectedLogLevels);
-    this.applyFilter();
-  }
-
-  toggleAllLogLevels(): void {
-    if (this.selectedLogLevels.length === this.logLevels.length) {
-      // 當前全選，改為全不選
-      this.selectedLogLevels = [];
-    } else {
-      // 當前非全選，改為全選
-      this.selectedLogLevels = this.logLevels.map(level => level.value);
-    }
-    console.log('切換全選狀態，當前選擇:', this.selectedLogLevels);
-    this.applyFilter();
-  }
-
-  getLogLevelColor(level: string): string {
-    const logLevel = this.logLevels.find(l => l.value === level);
-    return logLevel?.color || '#6c757d';
-  }
-
-  toggleOptimizedMode(): void {
-    console.log('切換查詢模式，從', this.useOptimizedMode ? '優化' : '傳統', '到', !this.useOptimizedMode ? '優化' : '傳統');
-    this.useOptimizedMode = !this.useOptimizedMode;
-    
-    // 斷開當前連接
-    if (this.useOptimizedMode) {
-      this.batchService.disconnectLogStream();
-    } else {
-      this.optimizedLogService.disconnectLogStream();
-    }
-    
-    // 重新建立連接
-    this.setupSSEConnection();
   }
 }

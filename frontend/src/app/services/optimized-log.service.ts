@@ -57,15 +57,18 @@ export class OptimizedLogService {
      * 建立 SSE 實時串流連接
      */
     streamLogs(criteria?: Partial<LogQueryCriteria>): Observable<BatchLog[]> {
+        // 確保完全斷開舊連接
         this.disconnectLogStream();
-
+        
         let params = new URLSearchParams();
         if (criteria) {
             if (criteria.executionId) params.append('executionId', criteria.executionId);
             if (criteria.jobName) params.append('jobName', criteria.jobName);
             if (criteria.logLevels && criteria.logLevels.length > 0) {
-                // 對於 SSE，只取第一個日誌級別（後端參數限制）
-                params.append('logLevel', criteria.logLevels[0]);
+                // 支援多選日誌級別：每個級別作為單獨的參數
+                criteria.logLevels.forEach(level => {
+                    params.append('logLevels', level);
+                });
             }
             if (criteria.keyword) params.append('keyword', criteria.keyword);
             if (criteria.startTime) params.append('startTime', criteria.startTime);
@@ -73,42 +76,65 @@ export class OptimizedLogService {
         }
 
         const url = `${this.apiUrl}/batch/optimized-logs/stream?${params.toString()}`;
-        this.eventSource = new EventSource(url);
-
-        this.eventSource.onopen = () => {
-            console.log('SSE 連接已建立');
-            this.connectionStatus.next('connected');
-        };
-
-        this.eventSource.addEventListener('connected', (event: any) => {
-            console.log('SSE 連接確認:', event.data);
-            this.connectionStatus.next('connected');
-        });
-
-        this.eventSource.addEventListener('logs', (event: any) => {
-            try {
-                const logs = JSON.parse(event.data);
-                if (Array.isArray(logs)) {
-                    this.logsSubject.next(logs);
-                }
-            } catch (error) {
-                console.error('解析日誌數據失敗:', error);
-            }
-        });
-
-        this.eventSource.onerror = (error) => {
-            console.error('SSE 連接錯誤:', error);
-            this.connectionStatus.next('error');
-            
-            // 5秒後重新連接
+        console.log('建立 SSE 連接到:', url);
+        
+        // 等待一小段時間確保舊連接完全關閉
+        return new Observable<BatchLog[]>(observer => {
             setTimeout(() => {
-                if (this.eventSource?.readyState === EventSource.CLOSED) {
-                    this.streamLogs(criteria);
-                }
-            }, 5000);
-        };
+                this.eventSource = new EventSource(url);
+                
+                this.eventSource.onopen = () => {
+                    console.log('SSE 連接已建立:', url);
+                    this.connectionStatus.next('connected');
+                    
+                    // 從URL中提取連接ID（後端生成的UUID）
+                    // 注意：我們需要從SSE響應中獲取實際的connectionId
+                };
 
-        return this.logsSubject.asObservable();
+                this.eventSource.addEventListener('connected', (event: any) => {
+                    console.log('SSE 連接確認:', event.data);
+                    this.connectionStatus.next('connected');
+                    
+                    // 嘗試從連接確認消息中提取連接ID
+                    try {
+                        // 如果後端返回JSON格式的連接信息
+                        const connectionInfo = JSON.parse(event.data);
+                        if (connectionInfo.connectionId) {
+                            this.connectionId = connectionInfo.connectionId;
+                            console.log('已獲取連接ID:', this.connectionId);
+                        }
+                    } catch (e) {
+                        // 如果不是JSON，暫時使用URL作為標識
+                        console.log('連接已建立，暫時無法獲取連接ID');
+                    }
+                });
+
+                this.eventSource.addEventListener('logs', (event: any) => {
+                    try {
+                        const logs = JSON.parse(event.data);
+                        if (Array.isArray(logs)) {
+                            observer.next(logs);
+                        }
+                    } catch (error) {
+                        console.error('解析日誌數據失敗:', error);
+                        observer.error(error);
+                    }
+                });
+
+                this.eventSource.onerror = (error) => {
+                    console.error('SSE 連接錯誤:', error);
+                    this.connectionStatus.next('error');
+                    observer.error(error);
+                };
+                
+                // 返回清理函數
+                return () => {
+                    console.log('Observable 被取消訂閱，執行清理');
+                    this.disconnectLogStream();
+                };
+                
+            }, 100); // 100ms 延遲確保舊連接清理完成
+        });
     }
 
     /**
@@ -162,11 +188,37 @@ export class OptimizedLogService {
      */
     disconnectLogStream(): void {
         if (this.eventSource) {
+            console.log('正在關閉 SSE 連接，當前狀態:', this.eventSource.readyState);
+            
+            // 如果有連接ID，主動通知後端關閉連接
+            if (this.connectionId) {
+                console.log('主動通知後端關閉連接:', this.connectionId);
+                this.http.delete(`${this.apiUrl}/batch/optimized-logs/stream/${this.connectionId}`)
+                    .subscribe({
+                        next: (response) => {
+                            console.log('後端連接已關閉:', response);
+                        },
+                        error: (error) => {
+                            console.warn('通知後端關閉連接失敗:', error);
+                        }
+                    });
+            }
+            
+            // 移除所有事件監聽器
+            this.eventSource.onopen = null;
+            this.eventSource.onmessage = null;
+            this.eventSource.onerror = null;
+            
+            // 關閉連接
             this.eventSource.close();
             this.eventSource = null;
             this.connectionId = null;
+            
+            // 更新連接狀態
             this.connectionStatus.next('disconnected');
-            console.log('SSE 連接已關閉');
+            console.log('SSE 連接已關閉並清理');
+        } else {
+            console.log('沒有活躍的 SSE 連接需要關閉');
         }
     }
 

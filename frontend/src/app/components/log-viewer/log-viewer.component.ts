@@ -3,11 +3,11 @@ import { BatchService } from '../../services/batch.service';
 import { OptimizedLogService } from '../../services/optimized-log.service';
 import { 
     BatchLog, 
-    LogFilter, 
     LogQueryCriteria, 
     LogStatsResponse 
 } from '../../models/batch-log.model';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-log-viewer',
@@ -20,19 +20,14 @@ export class LogViewerComponent implements OnInit, OnDestroy {
     isLoading = false;
     error = '';
     
-    // 新的查詢條件
+    // 查詢條件
     currentCriteria: LogQueryCriteria = {
         queryType: 'HISTORICAL',
         sortDirection: 'DESC',
         limit: 100
     };
-    
-    // 保持向後兼容
-    currentFilter: LogFilter = {};
 
     // SSE 連線相關
-    private sseSubscription?: Subscription;
-    private connectionStatusSubscription?: Subscription;
     isStreaming = false;
     connectionStatus = 'disconnected';
 
@@ -49,152 +44,116 @@ export class LogViewerComponent implements OnInit, OnDestroy {
     logStats: LogStatsResponse | null = null;
     showStats = false;
 
-    // 查詢模式：'legacy' 或 'optimized'
-    queryMode: 'legacy' | 'optimized' = 'optimized';
-
     // 為模板提供 Math 對象訪問
     Math = Math;
     Object = Object;
+
+    // RxJS響應式管理
+    private readonly criteriaChange$ = new Subject<LogQueryCriteria>();
+    private readonly destroy$ = new Subject<void>();
 
     constructor(
         private batchService: BatchService,
         private optimizedLogService: OptimizedLogService
     ) {
-        console.log('LogViewerComponent 初始化，預設使用優化模式');
+        console.log('LogViewerComponent 初始化，使用優化模式');
     }
 
     ngOnInit(): void {
-        this.loadInitialLogs();
+        this.setupReactiveStreams();
         this.subscribeToConnectionStatus();
+        this.loadInitialLogs();
     }
 
     ngOnDestroy(): void {
-        // 組件銷毀時主動斷開SSE連線
-        this.disconnectStream();
+        // 發送銷毀信號
+        this.destroy$.next();
+        this.destroy$.complete();
         
-        // 取消所有訂閱
-        if (this.sseSubscription) {
-            this.sseSubscription.unsubscribe();
-        }
-        if (this.connectionStatusSubscription) {
-            this.connectionStatusSubscription.unsubscribe();
-        }
+        // 確保斷開所有連接
+        this.optimizedLogService.disconnectLogStream();
         
-        console.log('LogViewerComponent 已銷毀，SSE連線已清理');
+        console.log('LogViewerComponent 已銷毀，所有連線已清理');
+    }
+
+    /**
+     * 設置響應式查詢流，統一管理所有查詢條件變化
+     */
+    private setupReactiveStreams(): void {
+        this.criteriaChange$.pipe(
+            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+            debounceTime(300), // 300ms延遲，避免頻繁查詢
+            tap(() => {
+                console.log('查詢條件已變化，準備重新連接SSE');
+                // 確保先斷開舊連接
+                this.optimizedLogService.disconnectLogStream();
+            }),
+            switchMap(() => this.createOptimizedSSEConnection()),
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: (logs) => {
+                console.log('收到響應式SSE查詢結果:', logs.length, '條日誌');
+                this.mergeNewLogs(logs);
+                this.applyFilter();
+                this.isLoading = false;
+                this.error = '';
+            },
+            error: (error) => {
+                console.error('響應式SSE查詢錯誤:', error);
+                this.error = `SSE連線錯誤: ${error.message || error}`;
+                this.isLoading = false;
+                this.isStreaming = false;
+            }
+        });
+    }
+
+    /**
+     * 建立優化的SSE連接
+     */
+    private createOptimizedSSEConnection() {
+        if (!this.isStreaming) {
+            return this.optimizedLogService.queryLogs(this.currentCriteria);
+        }
+
+        this.isLoading = true;
+        console.log('建立新的SSE連接');
+        return this.optimizedLogService.streamLogs(this.currentCriteria);
     }
 
     /**
      * 訂閱連線狀態變更
      */
     private subscribeToConnectionStatus(): void {
-        if (this.queryMode === 'optimized') {
-            this.connectionStatusSubscription = this.optimizedLogService.getConnectionStatus().subscribe(
-                status => {
-                    this.connectionStatus = status;
-                    console.log('SSE連線狀態變更:', status);
-                }
-            );
-        } else {
-            this.connectionStatusSubscription = this.batchService.getConnectionStatus().subscribe(
-                status => {
-                    this.connectionStatus = status;
-                    console.log('SSE連線狀態變更:', status);
-                }
-            );
-        }
+        this.optimizedLogService.getConnectionStatus()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(status => {
+                this.connectionStatus = status;
+                console.log('SSE連線狀態變更:', status);
+            });
     }
 
     /**
-     * 開始串流日誌
+     * 開始串流日誌（響應式版本）
      */
     startStreaming(): void {
         if (this.isStreaming) {
             return;
         }
 
-        console.log('開始串流日誌，模式:', this.queryMode, '查詢條件:', this.currentCriteria);
+        console.log('開始響應式串流日誌');
         this.isStreaming = true;
         
-        if (this.queryMode === 'optimized') {
-            // 使用新的優化服務
-            console.log('使用優化 SSE 服務');
-            this.sseSubscription = this.optimizedLogService.streamLogs(this.currentCriteria).subscribe({
-                next: (logs) => {
-                    console.log('收到SSE日誌數據:', logs.length, '筆');
-                    this.mergeNewLogs(logs);
-                    this.applyFilter();
-                },
-                error: (error) => {
-                    console.error('SSE串流錯誤:', error);
-                    this.error = `串流連線錯誤: ${error.message}`;
-                    this.isStreaming = false;
-                }
-            });
-        } else {
-            // 使用舊的服務
-            console.log('使用傳統 SSE 服務');
-            this.sseSubscription = this.batchService.connectToLogStream(this.currentFilter).subscribe({
-                next: (logs) => {
-                    console.log('收到SSE日誌數據:', logs.length, '筆');
-                    this.mergeNewLogs(logs);
-                    this.applyFilter();
-                },
-                error: (error) => {
-                    console.error('SSE串流錯誤:', error);
-                    this.error = `串流連線錯誤: ${error.message}`;
-                    this.isStreaming = false;
-                }
-            });
-        }
+        // 觸發響應式查詢
+        this.criteriaChange$.next({ ...this.currentCriteria });
     }
 
     /**
      * 停止串流日誌
      */
     stopStreaming(): void {
-        this.disconnectStream();
-    }
-
-    /**
-     * 斷開SSE連線
-     */
-    private disconnectStream(): void {
-        if (this.sseSubscription) {
-            this.sseSubscription.unsubscribe();
-            this.sseSubscription = undefined;
-        }
-        
-        if (this.queryMode === 'optimized') {
-            this.optimizedLogService.disconnectLogStream();
-        } else {
-            this.batchService.disconnectLogStream();
-        }
-        
         this.isStreaming = false;
+        this.optimizedLogService.disconnectLogStream();
         console.log('已停止日誌串流');
-    }
-
-    /**
-     * 合併新的日誌資料
-     */
-    private mergeNewLogs(newLogs: BatchLog[]): void {
-        if (!newLogs || newLogs.length === 0) {
-            return;
-        }
-
-        // 避免重複的日誌
-        const existingIds = new Set(this.logs.map(log => log.id));
-        const uniqueNewLogs = newLogs.filter(log => !existingIds.has(log.id));
-        
-        if (uniqueNewLogs.length > 0) {
-            // 根據排序方向決定插入位置
-            if (this.currentCriteria.sortDirection === 'DESC') {
-                this.logs = [...uniqueNewLogs, ...this.logs];
-            } else {
-                this.logs = [...this.logs, ...uniqueNewLogs];
-            }
-            console.log('合併了', uniqueNewLogs.length, '筆新日誌');
-        }
     }
 
     /**
@@ -216,29 +175,8 @@ export class LogViewerComponent implements OnInit, OnDestroy {
         this.error = '';
 
         // 使用快速查詢建立預設條件
-        if (this.queryMode === 'optimized') {
-            this.currentCriteria = this.optimizedLogService.createQuickCriteria('recent');
-            this.loadLogsWithCriteria();
-        } else {
-            // 預設載入最近24小時的日誌（舊方式）
-            const now = new Date();
-            const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-            const startTime = yesterday.toISOString().slice(0, 19);
-            const endTime = now.toISOString().slice(0, 19);
-
-            this.batchService.getLogsByTimeRange(startTime, endTime).subscribe({
-                next: (logs) => {
-                    this.logs = logs;
-                    this.applyFilter();
-                    this.isLoading = false;
-                },
-                error: (error) => {
-                    this.error = `載入日誌失敗: ${error.error || error.message}`;
-                    this.isLoading = false;
-                }
-            });
-        }
+        this.currentCriteria = this.optimizedLogService.createQuickCriteria('recent');
+        this.loadLogsWithCriteria();
     }
 
     /**
@@ -261,11 +199,17 @@ export class LogViewerComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * 處理新的查詢條件變化
+     * 響應式查詢條件變化處理
      */
     onCriteriaChange(criteria: LogQueryCriteria): void {
         this.currentCriteria = { ...criteria };
-        this.loadFilteredLogs();
+        console.log('查詢條件已更新:', this.currentCriteria);
+        
+        if (this.isStreaming) {
+            this.criteriaChange$.next({ ...this.currentCriteria });
+        } else {
+            this.loadFilteredLogs();
+        }
         
         // 如果有執行ID，載入統計資訊
         if (criteria.executionId) {
@@ -276,143 +220,44 @@ export class LogViewerComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * 處理舊的過濾條件變化（向後兼容）
-     */
-    onFilterChange(filter: LogFilter): void {
-        this.currentFilter = filter;
-        
-        if (this.queryMode === 'optimized') {
-            // 轉換為新的查詢條件
-            this.currentCriteria = this.optimizedLogService.convertFilterToCriteria({
-                ...filter,
-                logLevels: filter.logLevel ? [filter.logLevel] : undefined
-            });
-            this.loadFilteredLogs();
-        } else {
-            this.loadFilteredLogsLegacy();
-        }
-    }
-
-    /**
      * 載入過濾後的日誌
      */
     loadFilteredLogs(): void {
         this.isLoading = true;
         this.error = '';
-
-        if (this.queryMode === 'optimized') {
-            this.loadLogsWithCriteria();
-        } else {
-            this.loadFilteredLogsLegacy();
-        }
-    }
-
-    /**
-     * 使用舊方式載入過濾後的日誌
-     */
-    private loadFilteredLogsLegacy(): void {
-        if (this.currentFilter.startTime && this.currentFilter.endTime) {
-            // 使用時間範圍查詢
-            this.batchService.getLogsByTimeRange(
-                this.currentFilter.startTime,
-                this.currentFilter.endTime
-            ).subscribe({
-                next: (logs) => {
-                    this.logs = logs;
-                    this.applyFilter();
-                    this.isLoading = false;
-                },
-                error: (error) => {
-                    this.error = `載入日誌失敗: ${error.error || error.message}`;
-                    this.isLoading = false;
-                }
-            });
-        } else if (this.currentFilter.executionId) {
-            // 使用執行代號查詢
-            this.batchService.getLogsByExecutionId(this.currentFilter.executionId).subscribe({
-                next: (logs) => {
-                    this.logs = logs;
-                    this.applyFilter();
-                    this.isLoading = false;
-                },
-                error: (error) => {
-                    this.error = `載入日誌失敗: ${error.error || error.message}`;
-                    this.isLoading = false;
-                }
-            });
-        } else if (this.currentFilter.jobName) {
-            // 使用作業名稱查詢
-            this.batchService.getLogsByJobName(this.currentFilter.jobName).subscribe({
-                next: (logs) => {
-                    this.logs = logs;
-                    this.applyFilter();
-                    this.isLoading = false;
-                },
-                error: (error) => {
-                    this.error = `載入日誌失敗: ${error.error || error.message}`;
-                    this.isLoading = false;
-                }
-            });
-        } else {
-            // 載入預設日誌
-            this.loadInitialLogs();
-        }
+        this.loadLogsWithCriteria();
     }
 
     /**
      * 載入日誌統計資訊
      */
     private loadLogStats(executionId: string): void {
-        if (this.queryMode === 'optimized') {
-            this.optimizedLogService.getLogStats(executionId).subscribe({
-                next: (stats) => {
-                    this.logStats = stats;
-                    console.log('載入統計資訊:', stats);
-                },
-                error: (error) => {
-                    console.warn('載入統計資訊失敗:', error);
-                    this.logStats = null;
-                }
-            });
-        }
-    }
-
-    /**
-     * 切換查詢模式
-     */
-    toggleQueryMode(): void {
-        this.queryMode = this.queryMode === 'optimized' ? 'legacy' : 'optimized';
-        
-        // 重新訂閱連線狀態
-        if (this.connectionStatusSubscription) {
-            this.connectionStatusSubscription.unsubscribe();
-        }
-        this.subscribeToConnectionStatus();
-        
-        // 重新載入日誌
-        this.loadInitialLogs();
-        
-        console.log('切換到查詢模式:', this.queryMode);
+        this.optimizedLogService.getLogStats(executionId).subscribe({
+            next: (stats) => {
+                this.logStats = stats;
+                console.log('載入統計資訊:', stats);
+            },
+            error: (error) => {
+                console.warn('載入統計資訊失敗:', error);
+                this.logStats = null;
+            }
+        });
     }
 
     /**
      * 快速操作：顯示錯誤日誌
      */
     showErrorsOnly(): void {
-        if (this.queryMode === 'optimized') {
-            this.currentCriteria = this.optimizedLogService.createQuickCriteria('errors', this.currentCriteria.jobName);
-            this.loadFilteredLogs();
-        }
+        this.currentCriteria = this.optimizedLogService.createQuickCriteria('errors', this.currentCriteria.jobName);
+        this.loadFilteredLogs();
     }
 
     /**
      * 快速操作：顯示警告和錯誤
      */
     showWarningsAndErrors(): void {
-        if (this.queryMode === 'optimized') {
-            this.currentCriteria = this.optimizedLogService.createQuickCriteria('warnings', this.currentCriteria.jobName);
-            this.loadFilteredLogs();
-        }
+        this.currentCriteria = this.optimizedLogService.createQuickCriteria('warnings', this.currentCriteria.jobName);
+        this.loadFilteredLogs();
     }
 
     /**
@@ -426,30 +271,13 @@ export class LogViewerComponent implements OnInit, OnDestroy {
     applyFilter(): void {
         let filtered = [...this.logs];
 
-        // 根據查詢模式應用不同的過濾邏輯
-        if (this.queryMode === 'optimized') {
-            // 新模式：大部分過濾已在後端完成，這裡只做額外的客戶端過濾
-            // 關鍵字搜索（如果後端沒有完全處理）
-            if (this.currentCriteria.keyword && this.currentCriteria.keyword.trim()) {
-                const keyword = this.currentCriteria.keyword.toLowerCase();
-                filtered = filtered.filter(log =>
-                    log.message.toLowerCase().includes(keyword) ||
-                    log.loggerName.toLowerCase().includes(keyword)
-                );
-            }
-        } else {
-            // 舊模式：客戶端過濾
-            if (this.currentFilter.logLevel && this.currentFilter.logLevel !== 'ALL') {
-                filtered = filtered.filter(log => log.logLevel === this.currentFilter.logLevel);
-            }
-
-            if (this.currentFilter.keyword && this.currentFilter.keyword.trim()) {
-                const keyword = this.currentFilter.keyword.toLowerCase();
-                filtered = filtered.filter(log =>
-                    log.message.toLowerCase().includes(keyword) ||
-                    log.loggerName.toLowerCase().includes(keyword)
-                );
-            }
+        // 關鍵字搜索（如果後端沒有完全處理）
+        if (this.currentCriteria.keyword && this.currentCriteria.keyword.trim()) {
+            const keyword = this.currentCriteria.keyword.toLowerCase();
+            filtered = filtered.filter(log =>
+                log.message.toLowerCase().includes(keyword) ||
+                log.loggerName.toLowerCase().includes(keyword)
+            );
         }
 
         // 排序
@@ -537,5 +365,28 @@ export class LogViewerComponent implements OnInit, OnDestroy {
 
     clearError(): void {
         this.error = '';
+    }
+
+    /**
+     * 合併新的日誌資料
+     */
+    private mergeNewLogs(newLogs: BatchLog[]): void {
+        if (!newLogs || newLogs.length === 0) {
+            return;
+        }
+
+        // 避免重複的日誌
+        const existingIds = new Set(this.logs.map(log => log.id));
+        const uniqueNewLogs = newLogs.filter(log => !existingIds.has(log.id));
+        
+        if (uniqueNewLogs.length > 0) {
+            // 根據排序方向決定插入位置
+            if (this.currentCriteria.sortDirection === 'DESC') {
+                this.logs = [...uniqueNewLogs, ...this.logs];
+            } else {
+                this.logs = [...this.logs, ...uniqueNewLogs];
+            }
+            console.log('合併了', uniqueNewLogs.length, '筆新日誌');
+        }
     }
 } 

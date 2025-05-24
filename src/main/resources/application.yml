@@ -9,6 +9,27 @@ spring:
     username: root
     password: VZq9rWbC3oJYFYdDrjT6edewVHQEKNCBWPDnyqxKyzMTE3CoozBrWnYsi6KkpwKujcFKDytQCrxhTbcxsAB2vswcVgQc9ieYvtpP
     driver-class-name: org.postgresql.Driver
+    
+    # HikariCP 連接池配置 - 關鍵修復
+    hikari:
+      # 連接池大小設置
+      maximum-pool-size: 20          # 最大連接數（原本可能是10）
+      minimum-idle: 5                # 最小空閒連接數
+      
+      # 超時設置
+      connection-timeout: 20000      # 連接超時 20 秒
+      idle-timeout: 300000           # 空閒超時 5 分鐘
+      max-lifetime: 1200000          # 連接最大生命週期 20 分鐘
+      
+      # 驗證設置
+      validation-timeout: 3000       # 驗證超時 3 秒
+      connection-test-query: SELECT 1
+      
+      # 洩漏檢測
+      leak-detection-threshold: 60000  # 60 秒洩漏檢測
+      
+      # 連接池名稱
+      pool-name: BatchLogHikariPool
 
   # JPA 配置
   jpa:

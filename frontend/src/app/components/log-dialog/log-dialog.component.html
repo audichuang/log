@@ -12,125 +12,135 @@
 
   <!-- 過濾器區域 -->
   <div class="filter-section">
-    <!-- 查詢模式切換 -->
-    <div class="mode-toggle-section">
-      <button
-        mat-raised-button
-        [color]="useOptimizedMode ? 'primary' : 'accent'"
-        (click)="toggleOptimizedMode()"
-        class="mode-toggle-btn"
-      >
-        {{ useOptimizedMode ? '🚀 優化模式' : '🔧 傳統模式' }}
-      </button>
-      <span class="connection-status" [class]="'status-' + connectionStatus">
-        {{ connectionStatus === 'connected' ? '已連線' : connectionStatus === 'error' ? '連線錯誤' : '未連線' }}
-      </span>
-    </div>
-
-    <!-- 優化模式的多選日誌級別 -->
-    <div *ngIf="useOptimizedMode" class="optimized-filters">
-      <div class="log-level-section">
-        <h4>📊 日誌級別 (多選)</h4>
-        <div class="log-level-header">
-          <button 
-            mat-button 
-            class="toggle-all-btn"
-            (click)="toggleAllLogLevels()"
-          >
-            {{ selectedLogLevels.length === logLevels.length ? '全部取消' : '全部選擇' }}
-          </button>
-        </div>
-        
-        <div class="log-level-options">
-          <mat-checkbox 
-            *ngFor="let level of logLevels" 
-            [checked]="isLogLevelSelected(level.value)"
-            (change)="onLogLevelToggle(level.value, $event.checked)"
-            class="log-level-option"
-          >
-            <span 
-              class="log-level-indicator"
-              [style.background-color]="level.color"
-            ></span>
-            <span class="log-level-label">{{ level.label }}</span>
-          </mat-checkbox>
-        </div>
-
-        <div class="selected-levels-summary" *ngIf="selectedLogLevels.length > 0">
-          <span class="summary-text">
-            已選擇 {{ selectedLogLevels.length }} 個級別：
-          </span>
-          <span 
-            *ngFor="let level of selectedLogLevels; let last = last"
-            class="selected-level"
-            [style.color]="getLogLevelColor(level)"
-          >
-            {{ level }}{{ !last ? ', ' : '' }}
-          </span>
-        </div>
+    <!-- 連接狀態顯示 -->
+    <div class="connection-status-section">
+      <div class="status-display" [class]="'status-' + connectionStatus">
+        <mat-icon>{{ connectionStatus === 'connected' ? 'wifi' : connectionStatus === 'error' ? 'wifi_off' : 'wifi_off' }}</mat-icon>
+        <span class="status-text">
+          {{ connectionStatus === 'connected' ? '✅ 已連線' : connectionStatus === 'error' ? '❌ 連線錯誤' : '⏸️ 未連線' }}
+        </span>
       </div>
     </div>
 
-    <!-- 傳統模式的單選日誌級別 -->
-    <div class="filter-row" [ngClass]="{'legacy-mode': !useOptimizedMode}">
-      <mat-form-field appearance="outline" class="level-select" *ngIf="!useOptimizedMode">
-        <mat-label>日誌級別</mat-label>
-        <mat-select
-          [(value)]="selectedLogLevel"
-          (selectionChange)="onLogLevelChange()"
-        >
-          <mat-option *ngFor="let level of legacyLogLevels" [value]="level">
-            {{ level === "ALL" ? "全部級別" : level }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="execution-select">
-        <mat-label>執行代號</mat-label>
-        <mat-select
-          [(value)]="selectedExecutionId"
-          (selectionChange)="onExecutionIdChange()"
-          [disabled]="isLoadingExecutions"
-        >
-          <mat-option value="ALL">全部執行</mat-option>
-          <mat-option 
-            *ngFor="let execution of availableExecutions" 
-            [value]="execution.executionId"
-            class="execution-option"
+    <!-- 日誌級別多選下拉式選單 -->
+    <div class="filter-controls">
+      <div class="log-level-section">
+        <h4>📊 日誌級別</h4>
+        
+        <!-- 多選下拉式選單 -->
+        <mat-form-field appearance="outline" class="log-level-select">
+          <mat-label>選擇日誌級別</mat-label>
+          <mat-select 
+            multiple 
+            [(value)]="selectedLogLevels"
+            (selectionChange)="onLogLevelsSelectionChange($event.value)"
           >
-            <div class="execution-option-content">
-              <span class="execution-id">{{ execution.executionId }}</span>
-              <mat-chip [class]="'status-' + execution.status.toLowerCase()" class="mini-status-chip">
-                {{ getStatusText(execution.status) }}
+            <mat-select-trigger>
+              <span *ngIf="selectedLogLevels.length === 0">請選擇日誌級別...</span>
+              <span *ngIf="selectedLogLevels.length === 1">{{ selectedLogLevels[0] }}</span>
+              <span *ngIf="selectedLogLevels.length > 1">
+                已選擇 {{ selectedLogLevels.length }} 個級別
+              </span>
+            </mat-select-trigger>
+            
+            <!-- 全選/取消全選選項 -->
+            <mat-option 
+              class="toggle-all-option"
+              (click)="toggleAllLogLevels(); $event.stopPropagation()"
+            >
+              <span class="toggle-all-text">
+                {{ selectedLogLevels.length === logLevels.length ? '🔄 取消全選' : '✅ 全選' }}
+              </span>
+            </mat-option>
+            
+            <mat-divider></mat-divider>
+            
+            <!-- 日誌級別選項 -->
+            <mat-option 
+              *ngFor="let level of logLevels" 
+              [value]="level.value"
+              class="log-level-option"
+            >
+              <span 
+                class="log-level-indicator"
+                [style.background-color]="level.color"
+              ></span>
+              <span class="log-level-label">{{ level.label }}</span>
+            </mat-option>
+          </mat-select>
+          <mat-hint>可選擇多個日誌級別進行過濾</mat-hint>
+        </mat-form-field>
+
+        <!-- 已選擇的日誌級別顯示 -->
+        <div class="selected-levels-display" *ngIf="selectedLogLevels.length > 0">
+          <div class="selected-chips">
+            <mat-chip-list>
+              <mat-chip 
+                *ngFor="let level of selectedLogLevels" 
+                [removable]="true"
+                (removed)="removeLogLevel(level)"
+                [style.background-color]="getLogLevelColor(level)"
+                [style.color]="'white'"
+                class="level-chip"
+              >
+                {{ level }}
+                <mat-icon matChipRemove>cancel</mat-icon>
               </mat-chip>
-              <span class="execution-time">{{ formatDateTime(execution.executionTime) }}</span>
-            </div>
-          </mat-option>
-        </mat-select>
-        <mat-hint *ngIf="isLoadingExecutions">載入執行記錄中...</mat-hint>
-      </mat-form-field>
+            </mat-chip-list>
+          </div>
+        </div>
+      </div>
 
-      <mat-form-field appearance="outline" class="search-input">
-        <mat-label>搜尋關鍵字</mat-label>
-        <input
-          matInput
-          [(ngModel)]="searchKeyword"
-          (input)="onKeywordChange()"
-          placeholder="搜尋日誌內容..."
-        />
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+      <!-- 其他過濾條件 -->
+      <div class="other-filters">
+        <mat-form-field appearance="outline" class="execution-select">
+          <mat-label>執行代號</mat-label>
+          <mat-select
+            [(value)]="selectedExecutionId"
+            (selectionChange)="onExecutionIdChange()"
+            [disabled]="isLoadingExecutions"
+          >
+            <mat-option value="ALL">全部執行</mat-option>
+            <mat-option 
+              *ngFor="let execution of availableExecutions" 
+              [value]="execution.executionId"
+              class="execution-option"
+            >
+              <div class="execution-option-content">
+                <span class="execution-id">{{ execution.executionId }}</span>
+                <mat-chip [class]="'status-' + execution.status.toLowerCase()" class="mini-status-chip">
+                  {{ getStatusText(execution.status) }}
+                </mat-chip>
+                <span class="execution-time">{{ formatDateTime(execution.executionTime) }}</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="isLoadingExecutions">載入執行記錄中...</mat-hint>
+        </mat-form-field>
 
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="refreshLogs()"
-        [disabled]="isLoading"
-        matTooltip="重新載入日誌"
-      >
-        <mat-icon>refresh</mat-icon>
-        重新載入
-      </button>
+        <mat-form-field appearance="outline" class="search-input">
+          <mat-label>搜尋關鍵字</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchKeyword"
+            (input)="onKeywordChange()"
+            placeholder="搜尋日誌內容..."
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="refreshLogs()"
+          [disabled]="isLoading"
+          matTooltip="重新載入日誌"
+          class="refresh-btn"
+        >
+          <mat-icon>refresh</mat-icon>
+          重新載入
+        </button>
+      </div>
     </div>
 
     <!-- 作業資訊 -->

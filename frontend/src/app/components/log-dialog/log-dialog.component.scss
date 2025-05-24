@@ -261,46 +261,188 @@
     }
 }
 
-// 響應式設計
+// 連接狀態顯示樣式
+.connection-status-section {
+    margin-bottom: 16px;
+    
+    .status-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        width: fit-content;
+        transition: all 0.3s ease;
+        
+        &.status-connected {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+        }
+        
+        &.status-error {
+            background: linear-gradient(135deg, #f44336, #ef5350);
+            color: white;
+            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+        }
+        
+        &.status-disconnected {
+            background: linear-gradient(135deg, #9e9e9e, #bdbdbd);
+            color: white;
+            box-shadow: 0 2px 4px rgba(158, 158, 158, 0.3);
+        }
+        
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+        }
+    }
+}
+
+// 過濾器控制區域
+.filter-controls {
+    .log-level-section {
+        margin-bottom: 20px;
+        
+        h4 {
+            margin: 0 0 12px 0;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .log-level-select {
+            width: 100%;
+            max-width: 400px;
+            
+            .mat-mdc-select-trigger {
+                .mat-mdc-select-value {
+                    font-weight: 500;
+                }
+            }
+        }
+        
+        // 全選/取消全選選項的特殊樣式
+        .toggle-all-option {
+            border-bottom: 1px solid #e0e0e0;
+            
+            .toggle-all-text {
+                font-weight: 600;
+                color: #667eea;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            &:hover {
+                background-color: #f0f4ff;
+            }
+        }
+        
+        // 日誌級別選項樣式
+        .log-level-option {
+            .log-level-indicator {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 8px;
+                border: 2px solid transparent;
+            }
+            
+            .log-level-label {
+                font-weight: 500;
+            }
+            
+            &.mat-mdc-option.mat-mdc-option-active {
+                .log-level-indicator {
+                    border-color: white;
+                    box-shadow: 0 0 0 2px currentColor;
+                }
+            }
+        }
+        
+        // 已選擇級別的顯示區域
+        .selected-levels-display {
+            margin-top: 12px;
+            
+            .selected-chips {
+                .mat-mdc-chip-list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                
+                .level-chip {
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    border-radius: 16px;
+                    
+                    &.mat-mdc-chip {
+                        border: none;
+                        
+                        .mat-mdc-chip-remove {
+                            color: rgba(255, 255, 255, 0.8);
+                            
+                            &:hover {
+                                color: white;
+                                background-color: rgba(255, 255, 255, 0.2);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // 其他過濾條件
+    .other-filters {
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        
+        .execution-select {
+            min-width: 200px;
+            flex: 1;
+        }
+        
+        .search-input {
+            min-width: 200px;
+            flex: 1;
+        }
+        
+        .refresh-btn {
+            height: 56px;
+            min-width: 120px;
+        }
+    }
+}
+
+// 響應式設計優化
 @media (max-width: 768px) {
     .log-dialog-container {
         width: 95vw;
         max-height: 95vh;
     }
 
-    .filter-section {
-        .filter-row {
+    .filter-controls {
+        .other-filters {
             flex-direction: column;
             align-items: stretch;
             gap: 12px;
-
-            .level-select,
+            
             .execution-select,
             .search-input {
                 min-width: auto;
             }
-
-            button {
+            
+            .refresh-btn {
                 height: auto;
                 padding: 12px;
-            }
-        }
-    }
-
-    .table-container {
-        .logs-table {
-            font-size: 0.8rem;
-
-            .time-cell {
-                min-width: 120px;
-            }
-
-            .message-cell {
-                max-width: 200px;
-            }
-
-            .thread-cell {
-                max-width: 80px;
             }
         }
     }
@@ -361,3 +503,4 @@
         }
     }
 }
+

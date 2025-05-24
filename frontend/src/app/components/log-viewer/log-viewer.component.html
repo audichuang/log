@@ -2,8 +2,7 @@
   <!-- 過濾器區域 -->
   <div class="filter-section">
     <app-log-filter 
-      (filterChange)="onCriteriaChange($event)"
-      (legacyFilterChange)="onFilterChange($event)">
+      (filterChange)="onCriteriaChange($event)">
     </app-log-filter>
   </div>
 
@@ -12,20 +11,8 @@
     <div class="logs-header">
       <h2>批次作業日誌</h2>
       <div class="logs-controls">
-        <!-- 查詢模式切換 -->
-        <div class="query-mode-toggle">
-          <button
-            class="mode-toggle-btn"
-            [ngClass]="{ 'active': queryMode === 'optimized' }"
-            (click)="toggleQueryMode()"
-            title="切換查詢模式"
-          >
-            {{ queryMode === 'optimized' ? '🚀 優化模式' : '🔧 傳統模式' }}
-          </button>
-        </div>
-
-        <!-- 快速操作 (僅在優化模式下顯示) -->
-        <div class="quick-actions" *ngIf="queryMode === 'optimized'">
+        <!-- 快速操作 -->
+        <div class="quick-actions">
           <button 
             class="quick-btn error-btn" 
             (click)="showErrorsOnly()"
@@ -96,9 +83,9 @@
       </div>
     </div>
 
-    <!-- 統計資訊面板 (僅在優化模式下顯示) -->
+    <!-- 統計資訊面板 -->
     <div 
-      *ngIf="queryMode === 'optimized' && showStats && logStats" 
+      *ngIf="showStats && logStats" 
       class="stats-panel"
     >
       <div class="stats-header">
@@ -198,87 +185,72 @@
             <td class="log-time">{{ formatDateTime(log.logTime) }}</td>
             <td class="log-level">
               <span
-                class="level-badge"
+                class="log-level-badge"
                 [ngClass]="getLogLevelClass(log.logLevel)"
               >
                 {{ log.logLevel }}
               </span>
             </td>
-            <td class="execution-id">
-              <code>{{ log.executionId }}</code>
-            </td>
-            <td class="job-name">{{ log.jobName || "-" }}</td>
-            <td class="step-name">{{ log.stepName || "-" }}</td>
+            <td class="log-execution-id">{{ log.executionId || '-' }}</td>
+            <td class="log-job-name">{{ log.jobName || '-' }}</td>
+            <td class="log-step-name">{{ log.stepName || '-' }}</td>
             <td class="log-message">
               <div class="message-content">
                 {{ log.message }}
-                <div *ngIf="log.exceptionStack" class="exception-stack">
-                  <details>
-                    <summary>📋 例外堆疊</summary>
-                    <pre>{{ log.exceptionStack }}</pre>
-                  </details>
+                <div *ngIf="log.exceptionStack" class="exception-indicator">
+                  <span class="exception-icon" title="有例外堆疊資訊">⚠️</span>
                 </div>
               </div>
             </td>
-            <td class="logger-name">{{ log.loggerName || "-" }}</td>
-            <td class="thread-name">{{ log.threadName || "-" }}</td>
+            <td class="log-source">{{ log.loggerName || '-' }}</td>
+            <td class="log-thread">{{ log.threadName || '-' }}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- 無資料訊息 -->
-    <div *ngIf="!isLoading && filteredLogs.length === 0" class="no-data">
-      <div class="no-data-icon">📋</div>
-      <h3>沒有找到日誌記錄</h3>
-      <p>請調整過濾條件或檢查時間範圍</p>
-      <div class="no-data-suggestions" *ngIf="queryMode === 'optimized'">
-        <p>建議嘗試：</p>
-        <ul>
-          <li>擴大時間範圍</li>
-          <li>選擇更多日誌級別</li>
-          <li>簡化關鍵字搜尋</li>
-          <li>檢查作業名稱是否正確</li>
-        </ul>
-      </div>
-    </div>
-
     <!-- 分頁控制 -->
-    <div *ngIf="!isLoading && filteredLogs.length > 0" class="pagination">
+    <div
+      *ngIf="!isLoading && filteredLogs.length > 0"
+      class="pagination-container"
+    >
       <div class="pagination-info">
-        第 {{ currentPage }} 頁，共 {{ totalPages }} 頁 (顯示
-        {{ (currentPage - 1) * pageSize + 1 }} -
-        {{ Math.min(currentPage * pageSize, filteredLogs.length) }} 筆， 總共
-        {{ filteredLogs.length }} 筆)
-        <span *ngIf="queryMode === 'optimized' && currentCriteria.limit">
-          (後端限制: {{ currentCriteria.limit }} 筆)
+        <span>
+          顯示第 {{ (currentPage - 1) * pageSize + 1 }} 到 
+          {{ Math.min(currentPage * pageSize, filteredLogs.length) }} 筆，
+          共 {{ filteredLogs.length }} 筆記錄
+        </span>
+        <span *ngIf="currentCriteria.limit">
+          (限制 {{ currentCriteria.limit }} 筆)
         </span>
       </div>
-
+      
       <div class="pagination-controls">
         <button
           class="page-btn"
           (click)="goToPage(1)"
           [disabled]="currentPage === 1"
+          title="第一頁"
         >
-          首頁
+          ⏮
         </button>
         <button
           class="page-btn"
           (click)="goToPage(currentPage - 1)"
           [disabled]="currentPage === 1"
+          title="上一頁"
         >
-          上一頁
+          ◀
         </button>
 
         <span class="page-numbers">
           <button
-            *ngFor="let i of getPageNumbers()"
-            class="page-number"
-            [ngClass]="{ active: currentPage === i }"
-            (click)="goToPage(i)"
+            *ngFor="let page of getPageNumbers()"
+            class="page-btn"
+            [ngClass]="{ active: page === currentPage }"
+            (click)="goToPage(page)"
           >
-            {{ i }}
+            {{ page }}
           </button>
         </span>
 
@@ -286,16 +258,38 @@
           class="page-btn"
           (click)="goToPage(currentPage + 1)"
           [disabled]="currentPage === totalPages"
+          title="下一頁"
         >
-          下一頁
+          ▶
         </button>
         <button
           class="page-btn"
           (click)="goToPage(totalPages)"
           [disabled]="currentPage === totalPages"
+          title="最後一頁"
         >
-          末頁
+          ⏭
         </button>
+      </div>
+    </div>
+
+    <!-- 無資料顯示 -->
+    <div
+      *ngIf="!isLoading && filteredLogs.length === 0"
+      class="no-data-container"
+    >
+      <div class="no-data-icon">📝</div>
+      <h3>沒有找到日誌記錄</h3>
+      <p>請調整過濾條件或檢查系統狀態</p>
+      
+      <div class="no-data-suggestions">
+        <h4>建議操作：</h4>
+        <ul>
+          <li>調整時間範圍篩選</li>
+          <li>檢查日誌級別設定</li>
+          <li>確認執行代號是否正確</li>
+          <li>嘗試重新整理頁面</li>
+        </ul>
       </div>
     </div>
   </div>

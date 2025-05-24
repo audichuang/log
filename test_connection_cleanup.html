@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE 連接清理測試</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .button { 
+            background: #007bff; color: white; border: none; 
+            padding: 10px 20px; margin: 5px; cursor: pointer; 
+            border-radius: 4px; 
+        }
+        .button:hover { background: #0056b3; }
+        .button.danger { background: #dc3545; }
+        .button.danger:hover { background: #c82333; }
+        .status { 
+            background: #f8f9fa; border: 1px solid #dee2e6; 
+            padding: 10px; margin: 10px 0; border-radius: 4px; 
+        }
+        .logs { 
+            background: #212529; color: #fff; 
+            padding: 10px; height: 300px; overflow-y: auto; 
+            font-family: monospace; font-size: 12px;
+            border-radius: 4px;
+        }
+        .connection-info {
+            background: #d4edda; border: 1px solid #c3e6cb;
+            padding: 10px; margin: 10px 0; border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SSE 連接清理測試</h1>
+        <p>這個頁面用來測試對話框開啟/關閉時的 SSE 連接管理</p>
+
+        <div class="connection-info">
+            <h3>連接狀態</h3>
+            <p>活躍連接數: <span id="connectionCount">檢查中...</span></p>
+            <p>輪詢任務數: <span id="pollingCount">檢查中...</span></p>
+            <button class="button" onclick="checkStatus()">刷新狀態</button>
+        </div>
+
+        <div class="status">
+            <h3>操作面板</h3>
+            <button class="button" onclick="simulateDialogOpen()">模擬開啟對話框 (建立連接)</button>
+            <button class="button danger" onclick="simulateDialogClose()">模擬關閉對話框 (斷開連接)</button>
+            <button class="button danger" onclick="cleanupAllConnections()">清理所有連接</button>
+        </div>
+
+        <div class="status">
+            <h3>測試日誌</h3>
+            <div id="testLogs" class="logs"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentEventSource = null;
+        let currentConnectionId = null;
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('testLogs');
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function checkStatus() {
+            fetch('http://localhost:8089/api/batch/optimized-logs/stream/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('connectionCount').textContent = data.activeConnections;
+                    document.getElementById('pollingCount').textContent = data.activePollingTasks;
+                    log(`狀態更新: ${data.activeConnections} 個連接, ${data.activePollingTasks} 個輪詢任務`);
+                })
+                .catch(error => {
+                    log(`獲取狀態失敗: ${error.message}`);
+                });
+        }
+
+        function simulateDialogOpen() {
+            if (currentEventSource) {
+                log('警告: 已有活躍連接，先關閉舊連接');
+                simulateDialogClose();
+                setTimeout(() => simulateDialogOpen(), 200);
+                return;
+            }
+
+            log('🔗 模擬開啟對話框 - 建立 SSE 連接');
+            
+            const url = 'http://localhost:8089/api/batch/optimized-logs/stream?jobName=GET_EMPLOYEE_JOB&logLevels=ERROR&logLevels=WARN';
+            currentEventSource = new EventSource(url);
+
+            currentEventSource.onopen = function() {
+                log('✅ SSE 連接已建立');
+                setTimeout(checkStatus, 100);
+            };
+
+            currentEventSource.addEventListener('connected', function(event) {
+                try {
+                    const connectionInfo = JSON.parse(event.data);
+                    currentConnectionId = connectionInfo.connectionId;
+                    log(`🆔 獲取到連接ID: ${currentConnectionId}`);
+                } catch (e) {
+                    log(`📨 連接確認: ${event.data}`);
+                }
+            });
+
+            currentEventSource.addEventListener('logs', function(event) {
+                const logs = JSON.parse(event.data);
+                log(`📋 收到 ${logs.length} 條日誌`);
+            });
+
+            currentEventSource.onerror = function(error) {
+                log(`❌ SSE 連接錯誤: ${error}`);
+            };
+        }
+
+        function simulateDialogClose() {
+            if (!currentEventSource) {
+                log('⚠️  沒有活躍的連接需要關閉');
+                return;
+            }
+
+            log('🔌 模擬關閉對話框 - 斷開 SSE 連接');
+
+            // 主動通知後端關閉連接
+            if (currentConnectionId) {
+                log(`📤 主動通知後端關閉連接: ${currentConnectionId}`);
+                fetch(`http://localhost:8089/api/batch/optimized-logs/stream/${currentConnectionId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.text())
+                .then(result => {
+                    log(`✅ 後端連接已關閉: ${result}`);
+                })
+                .catch(error => {
+                    log(`⚠️  通知後端關閉連接失敗: ${error.message}`);
+                });
+            }
+
+            // 關閉前端連接
+            currentEventSource.close();
+            currentEventSource = null;
+            currentConnectionId = null;
+            
+            log('🔒 前端 SSE 連接已關閉');
+            setTimeout(checkStatus, 100);
+        }
+
+        function cleanupAllConnections() {
+            log('🧹 清理所有後端連接');
+            fetch('http://localhost:8089/api/batch/optimized-logs/stream/cleanup', {
+                method: 'DELETE'
+            })
+            .then(response => response.text())
+            .then(result => {
+                log(`✅ 清理完成: ${result}`);
+                setTimeout(checkStatus, 100);
+            })
+            .catch(error => {
+                log(`❌ 清理失敗: ${error.message}`);
+            });
+        }
+
+        // 頁面載入時檢查狀態
+        window.onload = function() {
+            log('🚀 測試頁面已載入');
+            checkStatus();
+        };
+
+        // 頁面關閉時清理連接
+        window.onbeforeunload = function() {
+            if (currentEventSource) {
+                simulateDialogClose();
+            }
+        };
+    </script>
+</body>
+</html> 
