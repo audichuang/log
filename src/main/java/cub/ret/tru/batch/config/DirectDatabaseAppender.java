@@ -21,13 +21,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 自定義Log4j2資料庫Appender - 直接JDBC版本
- * 不依賴 Spring 容器，直接使用 JDBC 連接資料庫
+ * 直接連接資料庫的 Log4j2 Appender 備用方案
+ * 不依賴 Spring 容器，適用於 Spring 依賴注入失效的情況
  */
-@Plugin(name = "DatabaseAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
-public class DatabaseAppender extends AbstractAppender {
+@Plugin(name = "DirectDatabaseAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
+public class DirectDatabaseAppender extends AbstractAppender {
 
-    // 資料庫連接配置
+    // 資料庫連接配置 - 您可以根據實際情況調整
     private static final String DB_URL = "jdbc:postgresql://192.168.31.247:5444/postgres?useUnicode=true&characterEncoding=utf8&useSSL=false&currentSchema=public";
     private static final String DB_USERNAME = "root";
     private static final String DB_PASSWORD = "VZq9rWbC3oJYFYdDrjT6edewVHQEKNCBWPDnyqxKyzMTE3CoozBrWnYsi6KkpwKujcFKDytQCrxhTbcxsAB2vswcVgQc9ieYvtpP";
@@ -44,15 +44,15 @@ public class DatabaseAppender extends AbstractAppender {
     private final Thread logProcessor;
     private volatile boolean isShutdown = false;
 
-    protected DatabaseAppender(String name, Filter filter) {
+    protected DirectDatabaseAppender(String name, Filter filter) {
         super(name, filter, null, true, null);
 
         // 啟動日誌處理執行緒
-        this.logProcessor = new Thread(this::processLogs, "DatabaseAppender-Worker");
+        this.logProcessor = new Thread(this::processLogs, "DirectDatabaseAppender-Worker");
         this.logProcessor.setDaemon(true);
         this.logProcessor.start();
 
-        LOGGER.info("DatabaseAppender (JDBC版本) 初始化成功");
+        LOGGER.info("DirectDatabaseAppender initialized successfully");
     }
 
     @Override
@@ -61,15 +61,24 @@ public class DatabaseAppender extends AbstractAppender {
             // 檢查是否有執行代號，沒有則跳過
             String executionId = event.getContextData().getValue("executionId");
             if (executionId == null) {
+                System.out.println("DirectDatabaseAppender: Skipping log event without executionId: " +
+                        event.getMessage().getFormattedMessage());
                 return;
             }
 
+            // 調試信息
+            System.out.println("DirectDatabaseAppender: Adding log to queue with executionId: " + executionId);
+
             // 非同步處理，避免阻塞主執行緒
             if (!logQueue.offer(event.toImmutable())) {
-                System.err.println("DatabaseAppender: Log queue is full, dropping log event");
+                System.err.println("DirectDatabaseAppender: Log queue is full, dropping log event");
+            } else {
+                System.out.println(
+                        "DirectDatabaseAppender: Log successfully added to queue, queue size: " + logQueue.size());
             }
         } catch (Exception e) {
-            System.err.println("DatabaseAppender: Failed to append log: " + e.getMessage());
+            System.err.println("DirectDatabaseAppender: Failed to append log: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -87,7 +96,7 @@ public class DatabaseAppender extends AbstractAppender {
                 Thread.currentThread().interrupt();
                 break;
             } catch (Exception e) {
-                System.err.println("DatabaseAppender: Error processing log: " + e.getMessage());
+                System.err.println("DirectDatabaseAppender: Error processing log: " + e.getMessage());
             }
         }
 
@@ -99,7 +108,7 @@ public class DatabaseAppender extends AbstractAppender {
                     saveLogToDatabase(event);
                 }
             } catch (Exception e) {
-                System.err.println("DatabaseAppender: Error processing remaining log: " + e.getMessage());
+                System.err.println("DirectDatabaseAppender: Error processing remaining log: " + e.getMessage());
             }
         }
     }
@@ -146,12 +155,16 @@ public class DatabaseAppender extends AbstractAppender {
 
             int rowsAffected = statement.executeUpdate();
 
-            // 調試信息（可以註釋掉）
-            // System.out.println("DatabaseAppender: Successfully saved log with
-            // executionId: " + executionId);
+            // 調試信息
+            System.out.println("DirectDatabaseAppender: Successfully saved log with executionId: " + executionId +
+                    ", rowsAffected: " + rowsAffected);
 
         } catch (SQLException e) {
-            System.err.println("DatabaseAppender: Failed to save log to database: " + e.getMessage());
+            System.err.println("DirectDatabaseAppender: Failed to save log to database: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("DirectDatabaseAppender: Unexpected error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -181,19 +194,19 @@ public class DatabaseAppender extends AbstractAppender {
             Thread.currentThread().interrupt();
         }
 
-        LOGGER.info("DatabaseAppender stopped");
+        LOGGER.info("DirectDatabaseAppender stopped");
     }
 
     @PluginFactory
-    public static DatabaseAppender createAppender(
+    public static DirectDatabaseAppender createAppender(
             @PluginAttribute("name") String name,
             @PluginElement("Filter") Filter filter) {
 
         if (name == null) {
-            LOGGER.error("No name provided for DatabaseAppender");
+            LOGGER.error("No name provided for DirectDatabaseAppender");
             return null;
         }
 
-        return new DatabaseAppender(name, filter);
+        return new DirectDatabaseAppender(name, filter);
     }
 }
