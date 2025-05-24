@@ -38,6 +38,14 @@ export class BatchService {
     }
 
     /**
+     * 查詢作業的執行歷史
+     */
+    getJobExecutions(jobName: string): Observable<BatchExecution[]> {
+        // 真實 API 調用
+        return this.http.get<BatchExecution[]>(`${this.apiUrl}/batch/jobs/${jobName}/executions`);
+    }
+
+    /**
      * 停止批次作業
      */
     stopBatchJob(executionId: string): Observable<string> {
@@ -58,7 +66,7 @@ export class BatchService {
      * 根據作業名稱查詢日誌
      */
     getLogsByJobName(jobName: string): Observable<BatchLog[]> {
-        // 真實 API 調用：
+        // 真實 API 調用
         return this.http.get<BatchLog[]>(`${this.apiUrl}/batch/logs/job/${jobName}`);
     }
 
@@ -96,54 +104,6 @@ export class BatchService {
             params,
             responseType: 'text' as 'json'
         });
-    }
-
-    /**
-     * 生成模擬日誌數據
-     */
-    private generateMockLogs(executionId: string): BatchLog[] {
-        const logs: BatchLog[] = [];
-        const logLevels = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
-        const messages = [
-            '批次作業開始執行',
-            '正在處理資料...',
-            '連接到資料庫',
-            '查詢員工資料',
-            '處理員工記錄',
-            '更新薪資資訊',
-            '發送通知郵件',
-            '備份完成',
-            '批次作業執行完成',
-            '清理暫存資料',
-            '網路連接異常，重新嘗試',
-            '資料驗證失敗',
-            '記憶體使用率過高',
-            '檔案寫入錯誤'
-        ];
-
-        for (let i = 0; i < 50; i++) {
-            const level = logLevels[Math.floor(Math.random() * logLevels.length)];
-            const messageIndex = Math.floor(Math.random() * messages.length);
-            const now = new Date();
-            const logTime = new Date(now.getTime() - Math.random() * 24 * 60 * 60 * 1000);
-
-            logs.push({
-                id: i + 1,
-                executionId: executionId,
-                jobName: 'SAMPLE_JOB',
-                stepName: `step-${Math.floor(i / 10) + 1}`,
-                logLevel: level,
-                message: messages[messageIndex] + ` (記錄 ${i + 1})`,
-                exceptionStack: level === 'ERROR' ? this.generateStackTrace() : undefined,
-                logTime: logTime.toISOString(),
-                loggerName: 'cub.ret.tru.batch.job.SampleJob',
-                threadName: `batch-thread-${Math.floor(Math.random() * 3) + 1}`,
-                additionalInfo: level === 'WARN' ? '效能警告' : undefined,
-                createdAt: logTime.toISOString()
-            });
-        }
-
-        return logs.sort((a, b) => new Date(b.logTime).getTime() - new Date(a.logTime).getTime());
     }
 
     /**

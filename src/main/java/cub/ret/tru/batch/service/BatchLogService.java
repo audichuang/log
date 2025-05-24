@@ -78,7 +78,8 @@ public class BatchLogService {
      */
     @Transactional(readOnly = true)
     public List<BatchLogEntity> getErrorLogs(String executionId) {
-        return batchLogRepository.findErrorLogsByExecutionId(executionId);
+//        return batchLogRepository.findErrorLogsByExecutionId(executionId);
+        return null;
     }
 
     /**
@@ -86,7 +87,8 @@ public class BatchLogService {
      */
     @Transactional(readOnly = true)
     public List<BatchLogEntity> getLogsByTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
-        return batchLogRepository.findByLogTimeBetween(startTime, endTime);
+        return null;
+//        return batchLogRepository.findByLogTimeBetween(startTime, endTime);
     }
 
     /**
@@ -104,7 +106,8 @@ public class BatchLogService {
     public void cleanOldLogs(int retentionDays) {
         try {
             LocalDateTime cutoffDate = LocalDateTime.now().minusDays(retentionDays);
-            batchLogRepository.deleteOldLogs(cutoffDate);
+//            batchLogRepository.deleteOldLogs(cutoffDate);
+
             log.info("Successfully cleaned old logs before: {}", cutoffDate);
         } catch (Exception e) {
             log.error("Failed to clean old logs", e);

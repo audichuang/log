@@ -12,17 +12,102 @@
 
   <!-- 過濾器區域 -->
   <div class="filter-section">
-    <div class="filter-row">
-      <mat-form-field appearance="outline" class="level-select">
+    <!-- 查詢模式切換 -->
+    <div class="mode-toggle-section">
+      <button
+        mat-raised-button
+        [color]="useOptimizedMode ? 'primary' : 'accent'"
+        (click)="toggleOptimizedMode()"
+        class="mode-toggle-btn"
+      >
+        {{ useOptimizedMode ? '🚀 優化模式' : '🔧 傳統模式' }}
+      </button>
+      <span class="connection-status" [class]="'status-' + connectionStatus">
+        {{ connectionStatus === 'connected' ? '已連線' : connectionStatus === 'error' ? '連線錯誤' : '未連線' }}
+      </span>
+    </div>
+
+    <!-- 優化模式的多選日誌級別 -->
+    <div *ngIf="useOptimizedMode" class="optimized-filters">
+      <div class="log-level-section">
+        <h4>📊 日誌級別 (多選)</h4>
+        <div class="log-level-header">
+          <button 
+            mat-button 
+            class="toggle-all-btn"
+            (click)="toggleAllLogLevels()"
+          >
+            {{ selectedLogLevels.length === logLevels.length ? '全部取消' : '全部選擇' }}
+          </button>
+        </div>
+        
+        <div class="log-level-options">
+          <mat-checkbox 
+            *ngFor="let level of logLevels" 
+            [checked]="isLogLevelSelected(level.value)"
+            (change)="onLogLevelToggle(level.value, $event.checked)"
+            class="log-level-option"
+          >
+            <span 
+              class="log-level-indicator"
+              [style.background-color]="level.color"
+            ></span>
+            <span class="log-level-label">{{ level.label }}</span>
+          </mat-checkbox>
+        </div>
+
+        <div class="selected-levels-summary" *ngIf="selectedLogLevels.length > 0">
+          <span class="summary-text">
+            已選擇 {{ selectedLogLevels.length }} 個級別：
+          </span>
+          <span 
+            *ngFor="let level of selectedLogLevels; let last = last"
+            class="selected-level"
+            [style.color]="getLogLevelColor(level)"
+          >
+            {{ level }}{{ !last ? ', ' : '' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 傳統模式的單選日誌級別 -->
+    <div class="filter-row" [ngClass]="{'legacy-mode': !useOptimizedMode}">
+      <mat-form-field appearance="outline" class="level-select" *ngIf="!useOptimizedMode">
         <mat-label>日誌級別</mat-label>
         <mat-select
           [(value)]="selectedLogLevel"
           (selectionChange)="onLogLevelChange()"
         >
-          <mat-option *ngFor="let level of logLevels" [value]="level">
+          <mat-option *ngFor="let level of legacyLogLevels" [value]="level">
             {{ level === "ALL" ? "全部級別" : level }}
           </mat-option>
         </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="execution-select">
+        <mat-label>執行代號</mat-label>
+        <mat-select
+          [(value)]="selectedExecutionId"
+          (selectionChange)="onExecutionIdChange()"
+          [disabled]="isLoadingExecutions"
+        >
+          <mat-option value="ALL">全部執行</mat-option>
+          <mat-option 
+            *ngFor="let execution of availableExecutions" 
+            [value]="execution.executionId"
+            class="execution-option"
+          >
+            <div class="execution-option-content">
+              <span class="execution-id">{{ execution.executionId }}</span>
+              <mat-chip [class]="'status-' + execution.status.toLowerCase()" class="mini-status-chip">
+                {{ getStatusText(execution.status) }}
+              </mat-chip>
+              <span class="execution-time">{{ formatDateTime(execution.executionTime) }}</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="isLoadingExecutions">載入執行記錄中...</mat-hint>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="search-input">
@@ -59,9 +144,9 @@
           <mat-icon>{{ getStatusIcon(data.job.status) }}</mat-icon>
           {{ getStatusText(data.job.status) }}
         </mat-chip>
-        <mat-chip *ngIf="data.executionId">
-          <mat-icon>play_circle</mat-icon>
-          {{ data.executionId }}
+        <mat-chip>
+          <mat-icon>work</mat-icon>
+          {{ data.job.name }}
         </mat-chip>
       </div>
     </div>

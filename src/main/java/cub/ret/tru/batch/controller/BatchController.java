@@ -25,28 +25,7 @@ import java.util.List;
 public class BatchController {
 
     private final JobLauncher jobLauncher;
-    private final Job getEmployeeJob;
     private final BatchLogService batchLogService;
-
-    /**
-     * 手動執行 GET_EMPLOYEE_JOB 批次作業
-     */
-    @PostMapping("/jobs/get-employee/run")
-    public ResponseEntity<String> runGetEmployeeJob() {
-        try {
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addLong("timestamp", System.currentTimeMillis())
-                    .toJobParameters();
-
-            jobLauncher.run(getEmployeeJob, jobParameters);
-
-            return ResponseEntity.ok("批次作業已成功啟動");
-        } catch (Exception e) {
-            log.error("啟動批次作業失敗", e);
-            return ResponseEntity.internalServerError()
-                    .body("批次作業啟動失敗: " + e.getMessage());
-        }
-    }
 
     /**
      * 根據執行代號查詢日誌

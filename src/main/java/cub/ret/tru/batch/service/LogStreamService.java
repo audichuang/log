@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -78,18 +79,12 @@ public class LogStreamService {
             cleanupConnection(connectionId);
         }
 
-        // 開始輪詢（無過濾條件或只有executionId）或立即查詢（複雜過濾條件）
-        if (filter == null || isEmptyFilter(filter) || 
-            (filter.getExecutionId() != null && filter.getJobName() == null && 
-             filter.getLogLevel() == null && filter.getKeyword() == null && 
-             filter.getStartTime() == null && filter.getEndTime() == null)) {
-            // 先立即查詢一次歷史日誌
-            queryAndSendLogs(connectionId, filter);
-            // 然後開始輪詢新日誌
+        // 開始輪詢（如果是輪詢類型的查詢）或立即查詢
+        queryAndSendLogs(connectionId, filter);
+        
+        // 如果沒有特定的執行ID過濾，開始輪詢新日誌
+        if (filter == null || ObjectUtils.isEmpty(filter.getExecutionId())) {
             startPolling(connectionId);
-        } else {
-            // 複雜過濾條件：只做一次性查詢
-            queryAndSendLogs(connectionId, filter);
         }
 
         return emitter;
@@ -127,14 +122,7 @@ public class LogStreamService {
             }
 
             LogFilter filter = connectionFilters.get(connectionId);
-            
-            // 無過濾條件或只有 executionId 時才輪詢
-            if (filter == null || isEmptyFilter(filter) || 
-                (filter.getExecutionId() != null && filter.getJobName() == null && 
-                 filter.getLogLevel() == null && filter.getKeyword() == null && 
-                 filter.getStartTime() == null && filter.getEndTime() == null)) {
-                queryAndSendLogs(connectionId, filter);
-            }
+            queryAndSendLogs(connectionId, filter);
         }, 1, 2, TimeUnit.SECONDS); // 每2秒輪詢一次
     }
 
@@ -148,52 +136,9 @@ public class LogStreamService {
         }
 
         try {
-            LocalDateTime lastTime = lastLogTime.get(connectionId);
-            List<BatchLogEntity> logs;
-
-            if (filter == null || isEmptyFilter(filter)) {
-                // 無過濾條件：查詢從上次時間後的所有日誌
-                logs = batchLogRepository.findByLogTimeAfterOrderByLogTimeDesc(lastTime);
-            } else if (filter.getExecutionId() != null && 
-                       filter.getJobName() == null && filter.getLogLevel() == null && 
-                       filter.getKeyword() == null && filter.getStartTime() == null && 
-                       filter.getEndTime() == null) {
-                // 只有 executionId 條件：查詢該作業名稱的所有新日誌（支援多次執行）
-                // 首先從 executionId 中提取作業名稱
-                String jobName = extractJobNameFromExecutionId(filter.getExecutionId());
-                if (jobName != null) {
-                    logs = batchLogRepository.findByJobNameOrderByLogTimeDesc(jobName)
-                            .stream()
-                            .filter(log -> log.getLogTime().isAfter(lastTime))
-                            .collect(java.util.stream.Collectors.toList());
-                } else {
-                    // 如果無法提取作業名稱，回到原來的邏輯
-                    logs = batchLogRepository.findByExecutionIdOrderByLogTimeDesc(filter.getExecutionId())
-                            .stream()
-                            .filter(log -> log.getLogTime().isAfter(lastTime))
-                            .collect(java.util.stream.Collectors.toList());
-                }
-            } else {
-                // 其他複雜過濾條件：使用一次性查詢
-                logs = queryLogsByFilter(filter);
-                // 對於複雜過濾，不更新最後時間，避免重複發送
-                if (!logs.isEmpty()) {
-                    emitter.send(SseEmitter.event()
-                            .name("logs")
-                            .data(logs));
-                    log.debug("發送 {} 條日誌到連接: {}", logs.size(), connectionId);
-                }
-                return;
-            }
+            List<BatchLogEntity> logs = queryLogsByFilter(filter);
 
             if (!logs.isEmpty()) {
-                // 更新最後日誌時間
-                LocalDateTime latestTime = logs.stream()
-                        .map(BatchLogEntity::getLogTime)
-                        .max(LocalDateTime::compareTo)
-                        .orElse(lastTime);
-                lastLogTime.put(connectionId, latestTime);
-
                 // 發送日誌數據
                 emitter.send(SseEmitter.event()
                         .name("logs")
@@ -211,78 +156,52 @@ public class LogStreamService {
     }
 
     /**
-     * 從執行代號中提取作業名稱
-     * 例如：202505242015GET_EMPLOYEE_JOB -> GET_EMPLOYEE_JOB
-     */
-    private String extractJobNameFromExecutionId(String executionId) {
-        if (executionId == null || executionId.isEmpty()) {
-            return null;
-        }
-        
-        // 執行代號格式：yyyyMMddHHmmJOB_NAME
-        // 找到第三個字母的位置（通常是作業名稱的開始）
-        int jobNameStart = -1;
-        int digitCount = 0;
-        
-        for (int i = 0; i < executionId.length(); i++) {
-            if (Character.isDigit(executionId.charAt(i))) {
-                digitCount++;
-            } else {
-                if (digitCount >= 12) { // yyyyMMddHHmm = 12位數字
-                    jobNameStart = i;
-                    break;
-                }
-            }
-        }
-        
-        if (jobNameStart > 0 && jobNameStart < executionId.length()) {
-            return executionId.substring(jobNameStart);
-        }
-        
-        return null;
-    }
-
-    /**
      * 根據過濾條件查詢日誌
      */
     private List<BatchLogEntity> queryLogsByFilter(LogFilter filter) {
+        // 如果過濾條件為空，返回最近的日誌
+//            if (filter == null || isEmptyFilter(filter)) {
+//                return batchLogRepository.findRecentLogs();
+//            }
+
         // 優先使用 executionId 查詢
-        if (filter.getExecutionId() != null && !filter.getExecutionId().isEmpty()) {
+        if (!ObjectUtils.isEmpty(filter.getExecutionId())) {
             return batchLogRepository.findByExecutionIdOrderByLogTimeDesc(filter.getExecutionId());
         }
         
         // 其次使用 jobName 查詢
-        if (filter.getJobName() != null && !filter.getJobName().isEmpty()) {
+        if (!ObjectUtils.isEmpty(filter.getJobName())) {
             return batchLogRepository.findByJobNameOrderByLogTimeDesc(filter.getJobName());
         }
         
+        // 如果有時間範圍
+//        if (filter.getStartTime() != null && filter.getEndTime() != null) {
+//            return batchLogRepository.findByLogTimeBetweenOrderByLogTimeDesc(filter.getStartTime(), filter.getEndTime());
+//        }
+        
         // 使用 logLevel 查詢
-        if (filter.getLogLevel() != null && !filter.getLogLevel().isEmpty()) {
+        if (!ObjectUtils.isEmpty(filter.getLogLevel())) {
             return batchLogRepository.findByLogLevelOrderByLogTimeDesc(filter.getLogLevel());
         }
         
-        // 如果有關鍵字，使用關鍵字查詢（先註解掉，因為SQL語法有問題）
-        // if (filter.getKeyword() != null && !filter.getKeyword().isEmpty()) {
-        //     return batchLogRepository.findByKeywordOrderByLogTimeDesc(filter.getKeyword());
-        // }
-        
-        // 如果有時間範圍
-        if (filter.getStartTime() != null && filter.getEndTime() != null) {
-            return batchLogRepository.findByLogTimeBetweenOrderByLogTimeDesc(filter.getStartTime(), filter.getEndTime());
-        }
+        // 如果有關鍵字，使用關鍵字查詢
+//        if (!ObjectUtils.isEmpty(filter.getKeyword())) {
+//            return batchLogRepository.findByKeywordOrderByLogTimeDesc(filter.getKeyword());
+//        }
         
         // 預設返回最近的日誌
-        return batchLogRepository.findRecentLogs();
+//        return batchLogRepository.findRecentLogs();
+        return null;
     }
 
     /**
      * 檢查是否為空過濾條件
      */
     private boolean isEmptyFilter(LogFilter filter) {
-        return filter.getExecutionId() == null && 
-               filter.getJobName() == null && 
-               filter.getLogLevel() == null && 
-               filter.getKeyword() == null && 
+        return ObjectUtils.isEmpty(filter.getExecutionId()) && 
+               ObjectUtils.isEmpty(filter.getJobName()) && 
+               ObjectUtils.isEmpty(filter.getLogLevel()) && 
+               ObjectUtils.isEmpty(filter.getKeyword()) && 
                filter.getStartTime() == null && 
                filter.getEndTime() == null;
     }

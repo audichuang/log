@@ -73,27 +73,15 @@ ALTER TABLE batch_execution
 ADD CONSTRAINT fk_batch_execution_job_name 
 FOREIGN KEY (job_name) REFERENCES batch_job_info(job_name);
 
--- 插入實際的批次作業
-INSERT INTO batch_job_info (job_id, job_name, display_name, description, status, is_scheduled, enabled, category, estimated_duration) VALUES
-('get-employee-job', 'getEmployeeJob', 'GET_EMPLOYEE_JOB', '個法人信託行員檔拆解與寫入', 'IDLE', false, true, '資料處理', 10)
-ON CONFLICT (job_id) DO UPDATE SET
-    display_name = EXCLUDED.display_name,
-    description = EXCLUDED.description,
-    status = EXCLUDED.status,
-    is_scheduled = EXCLUDED.is_scheduled,
-    enabled = EXCLUDED.enabled,
-    category = EXCLUDED.category,
-    estimated_duration = EXCLUDED.estimated_duration;
-
--- 插入一些示例日誌數據
-INSERT INTO batch_log (execution_id, job_name, step_name, log_level, message, log_time, logger_name, thread_name) VALUES
-('exec-001', 'getEmployeeJob', 'step-1', 'INFO', '批次作業開始執行', NOW() - INTERVAL '1 hour', 'cub.ret.tru.batch.job.GetEmployeeJob', 'batch-thread-1'),
-('exec-001', 'getEmployeeJob', 'step-1', 'INFO', '正在處理員工資料...', NOW() - INTERVAL '50 minutes', 'cub.ret.tru.batch.job.GetEmployeeJob', 'batch-thread-1'),
-('exec-001', 'getEmployeeJob', 'step-1', 'DEBUG', '連接到資料庫', NOW() - INTERVAL '45 minutes', 'cub.ret.tru.batch.job.GetEmployeeJob', 'batch-thread-1'),
-('exec-001', 'getEmployeeJob', 'step-2', 'INFO', '查詢員工資料', NOW() - INTERVAL '40 minutes', 'cub.ret.tru.batch.job.GetEmployeeJob', 'batch-thread-1'),
-('exec-001', 'getEmployeeJob', 'step-2', 'WARN', '部分員工資料缺失', NOW() - INTERVAL '35 minutes', 'cub.ret.tru.batch.job.GetEmployeeJob', 'batch-thread-1'),
-('exec-001', 'getEmployeeJob', 'step-3', 'INFO', '處理員工記錄', NOW() - INTERVAL '30 minutes', 'cub.ret.tru.batch.job.GetEmployeeJob', 'batch-thread-1'),
-('exec-001', 'getEmployeeJob', 'step-3', 'INFO', '批次作業執行完成', NOW() - INTERVAL '25 minutes', 'cub.ret.tru.batch.job.GetEmployeeJob', 'batch-thread-1'),
-('exec-002', 'payrollCalculationJob', 'step-1', 'INFO', '薪資計算開始', NOW() - INTERVAL '2 hours', 'cub.ret.tru.batch.job.PayrollJob', 'batch-thread-2'),
-('exec-002', 'payrollCalculationJob', 'step-1', 'ERROR', '薪資計算過程中發生錯誤', NOW() - INTERVAL '1 hour 30 minutes', 'cub.ret.tru.batch.job.PayrollJob', 'batch-thread-2'),
-('exec-003', 'reportGenerationJob', 'step-1', 'INFO', '開始生成報表', NOW() - INTERVAL '3 hours', 'cub.ret.tru.batch.job.ReportJob', 'batch-thread-3'); 
+-- -- 插入實際的批次作業
+-- INSERT INTO batch_job_info (job_id, job_name, display_name, description, status, is_scheduled, enabled, category, estimated_duration) VALUES
+-- ('get-employee-job', 'getEmployeeJob', 'GET_EMPLOYEE_JOB', '個法人信託行員檔拆解與寫入', 'IDLE', false, true, '資料處理', 10)
+-- ON CONFLICT (job_id) DO UPDATE SET
+--     display_name = EXCLUDED.display_name,
+--     description = EXCLUDED.description,
+--     status = EXCLUDED.status,
+--     is_scheduled = EXCLUDED.is_scheduled,
+--     enabled = EXCLUDED.enabled,
+--     category = EXCLUDED.category,
+--     estimated_duration = EXCLUDED.estimated_duration;
+-- 'exec-003', 'reportGenerationJob', 'step-1', 'INFO', '開始生成報表', NOW() - INTERVAL '3 hours', 'cub.ret.tru.batch.job.ReportJob', 'batch-thread-3');

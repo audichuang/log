@@ -97,8 +97,7 @@ export class BatchControlComponent implements OnInit {
     viewLogs(job: BatchJob): void {
         const dialogRef = this.dialog.open(LogDialogComponent, {
             data: {
-                job: job,
-                executionId: job.lastExecutionId
+                job: job
             },
             width: '90vw',
             maxWidth: '1200px',

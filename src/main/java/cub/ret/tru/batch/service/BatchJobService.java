@@ -11,15 +11,12 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * 批次作業服務
@@ -64,10 +61,10 @@ public class BatchJobService {
         List<BatchExecutionEntity> runningExecutions = batchExecutionRepository.findByStatusIn(
                 List.of(BatchExecutionEntity.ExecutionStatus.RUNNING)
         );
-        
+
         boolean isAlreadyRunning = runningExecutions.stream()
                 .anyMatch(execution -> execution.getJobName().equals(jobEntity.getName()));
-        
+
         if (isAlreadyRunning) {
             throw new IllegalStateException("作業正在執行中: " + jobId);
         }
@@ -91,7 +88,7 @@ public class BatchJobService {
 
             // 執行完成後，取得執行代號（由 BaseJobListener 生成）
             String executionId = jobExecution.getExecutionContext().getString("executionId");
-            
+
             // 創建執行記錄
             LocalDateTime now = LocalDateTime.now();
             BatchExecutionEntity execution = BatchExecutionEntity.builder()
@@ -104,7 +101,7 @@ public class BatchJobService {
                     .createdAt(now)  // 手動設置創建時間
                     .updatedAt(now)  // 手動設置更新時間
                     .build();
-            
+
             batchExecutionRepository.save(execution);
 
             // 更新作業狀態
@@ -115,9 +112,9 @@ public class BatchJobService {
             log.info("批次作業已完成: {} (執行代號: {})", jobEntity.getDisplayName(), executionId);
             return execution;
 
-        } catch (JobExecutionAlreadyRunningException | JobRestartException | 
+        } catch (JobExecutionAlreadyRunningException | JobRestartException |
                  JobInstanceAlreadyCompleteException | JobParametersInvalidException e) {
-            
+
             // 更新作業狀態為失敗
             jobEntity.setStatus(BatchJobEntity.JobStatus.FAILED);
             batchJobRepository.save(jobEntity);
@@ -169,41 +166,4 @@ public class BatchJobService {
     public List<BatchExecutionEntity> getJobExecutions(String jobName) {
         return batchExecutionRepository.findByJobNameOrderByStartTimeDesc(jobName);
     }
-
-    /**
-     * 初始化作業數據 - 創建實際的 GET_EMPLOYEE_JOB
-     */
-    @Transactional
-    public void initializeJobs() {
-        // 檢查是否已有 GET_EMPLOYEE_JOB
-        if (batchJobRepository.findById("get-employee-job").isPresent()) {
-            log.info("GET_EMPLOYEE_JOB 已存在，跳過初始化");
-            return;
-        }
-
-        log.info("創建 GET_EMPLOYEE_JOB 批次作業...");
-
-        // 創建實際存在的批次作業
-        BatchJobEntity getEmployeeJob = BatchJobEntity.builder()
-                .id("get-employee-job")
-                .name("getEmployeeJob")  // 對應到實際的 Spring Bean 名稱
-                .displayName("GET_EMPLOYEE_JOB")
-                .description("個法人信託行員檔拆解與寫入")
-                .status(BatchJobEntity.JobStatus.IDLE)
-                .isScheduled(false)
-                .enabled(true)
-                .category("資料處理")
-                .estimatedDuration(10)
-                .build();
-
-        batchJobRepository.save(getEmployeeJob);
-        log.info("已成功創建批次作業: {} (Bean名稱: {})", getEmployeeJob.getDisplayName(), getEmployeeJob.getName());
-    }
-
-    /**
-     * 生成執行代號
-     */
-    private String generateExecutionId() {
-        return "exec-" + UUID.randomUUID().toString().substring(0, 8);
-    }
-} 
+}

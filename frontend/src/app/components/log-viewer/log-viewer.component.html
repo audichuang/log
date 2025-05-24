@@ -1,7 +1,10 @@
 <div class="log-viewer-container">
   <!-- 過濾器區域 -->
   <div class="filter-section">
-    <app-log-filter (filterChange)="onFilterChange($event)"></app-log-filter>
+    <app-log-filter 
+      (filterChange)="onCriteriaChange($event)"
+      (legacyFilterChange)="onFilterChange($event)">
+    </app-log-filter>
   </div>
 
   <!-- 日誌內容區域 -->
@@ -9,6 +12,45 @@
     <div class="logs-header">
       <h2>批次作業日誌</h2>
       <div class="logs-controls">
+        <!-- 查詢模式切換 -->
+        <div class="query-mode-toggle">
+          <button
+            class="mode-toggle-btn"
+            [ngClass]="{ 'active': queryMode === 'optimized' }"
+            (click)="toggleQueryMode()"
+            title="切換查詢模式"
+          >
+            {{ queryMode === 'optimized' ? '🚀 優化模式' : '🔧 傳統模式' }}
+          </button>
+        </div>
+
+        <!-- 快速操作 (僅在優化模式下顯示) -->
+        <div class="quick-actions" *ngIf="queryMode === 'optimized'">
+          <button 
+            class="quick-btn error-btn" 
+            (click)="showErrorsOnly()"
+            title="快速查看錯誤日誌"
+          >
+            🚨 錯誤
+          </button>
+          <button 
+            class="quick-btn warning-btn" 
+            (click)="showWarningsAndErrors()"
+            title="快速查看警告和錯誤"
+          >
+            ⚠️ 警告&錯誤
+          </button>
+          <button 
+            class="quick-btn stats-btn" 
+            (click)="toggleStats()"
+            [ngClass]="{ 'active': showStats }"
+            *ngIf="logStats"
+            title="顯示/隱藏統計資訊"
+          >
+            📊 統計
+          </button>
+        </div>
+
         <!-- SSE 連線控制 -->
         <div class="streaming-controls">
           <div class="connection-status">
@@ -50,6 +92,40 @@
             <span *ngIf="isLoading" class="loading-spinner"></span>
             {{ isLoading ? "載入中..." : "重新整理" }}
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 統計資訊面板 (僅在優化模式下顯示) -->
+    <div 
+      *ngIf="queryMode === 'optimized' && showStats && logStats" 
+      class="stats-panel"
+    >
+      <div class="stats-header">
+        <h3>📊 日誌統計</h3>
+        <button class="close-stats-btn" (click)="toggleStats()">×</button>
+      </div>
+      <div class="stats-content">
+        <div class="stats-summary">
+          <div class="stat-item">
+            <span class="stat-label">執行ID:</span>
+            <span class="stat-value">{{ logStats.executionId }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">總記錄數:</span>
+            <span class="stat-value">{{ logStats.totalCount }}</span>
+          </div>
+        </div>
+        <div class="level-stats">
+          <div class="level-stat" 
+               *ngFor="let level of Object.keys(logStats.levelCounts)" 
+               [ngClass]="'level-' + level.toLowerCase()">
+            <span class="level-label">{{ level }}:</span>
+            <span class="level-count">{{ logStats.levelCounts[level] }}</span>
+            <span class="level-percentage">
+              ({{ ((logStats.levelCounts[level] / logStats.totalCount) * 100).toFixed(1) }}%)
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -113,11 +189,12 @@
                 ↕
               </span>
             </th>
+            <th>日誌來源</th>
             <th>執行緒</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let log of paginatedLogs" class="log-row">
+          <tr *ngFor="let log of paginatedLogs" class="log-row" [ngClass]="getLogLevelClass(log.logLevel)">
             <td class="log-time">{{ formatDateTime(log.logTime) }}</td>
             <td class="log-level">
               <span
@@ -127,7 +204,9 @@
                 {{ log.logLevel }}
               </span>
             </td>
-            <td class="execution-id">{{ log.executionId }}</td>
+            <td class="execution-id">
+              <code>{{ log.executionId }}</code>
+            </td>
             <td class="job-name">{{ log.jobName || "-" }}</td>
             <td class="step-name">{{ log.stepName || "-" }}</td>
             <td class="log-message">
@@ -135,12 +214,13 @@
                 {{ log.message }}
                 <div *ngIf="log.exceptionStack" class="exception-stack">
                   <details>
-                    <summary>例外堆疊</summary>
+                    <summary>📋 例外堆疊</summary>
                     <pre>{{ log.exceptionStack }}</pre>
                   </details>
                 </div>
               </div>
             </td>
+            <td class="logger-name">{{ log.loggerName || "-" }}</td>
             <td class="thread-name">{{ log.threadName || "-" }}</td>
           </tr>
         </tbody>
@@ -152,6 +232,15 @@
       <div class="no-data-icon">📋</div>
       <h3>沒有找到日誌記錄</h3>
       <p>請調整過濾條件或檢查時間範圍</p>
+      <div class="no-data-suggestions" *ngIf="queryMode === 'optimized'">
+        <p>建議嘗試：</p>
+        <ul>
+          <li>擴大時間範圍</li>
+          <li>選擇更多日誌級別</li>
+          <li>簡化關鍵字搜尋</li>
+          <li>檢查作業名稱是否正確</li>
+        </ul>
+      </div>
     </div>
 
     <!-- 分頁控制 -->
@@ -161,6 +250,9 @@
         {{ (currentPage - 1) * pageSize + 1 }} -
         {{ Math.min(currentPage * pageSize, filteredLogs.length) }} 筆， 總共
         {{ filteredLogs.length }} 筆)
+        <span *ngIf="queryMode === 'optimized' && currentCriteria.limit">
+          (後端限制: {{ currentCriteria.limit }} 筆)
+        </span>
       </div>
 
       <div class="pagination-controls">

@@ -34,7 +34,7 @@ public class BatchJobController {
      */
     @PostConstruct
     public void init() {
-        batchJobService.initializeJobs();
+//        batchJobService.initializeJobs();
     }
 
     /**

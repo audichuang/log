@@ -47,6 +47,10 @@
             min-width: 150px;
         }
 
+        .execution-select {
+            min-width: 200px;
+        }
+
         .search-input {
             flex: 1;
             min-width: 200px;
@@ -271,6 +275,7 @@
             gap: 12px;
 
             .level-select,
+            .execution-select,
             .search-input {
                 min-width: auto;
             }
@@ -305,6 +310,54 @@
 
         h2 {
             font-size: 1.1rem;
+        }
+    }
+}
+
+// 執行ID選項的自定義樣式
+.execution-option {
+    .execution-option-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+
+        .execution-id {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .mini-status-chip {
+            font-size: 0.7rem;
+            height: 20px;
+            min-height: 20px;
+            padding: 0 8px;
+            align-self: flex-start;
+
+            &.status-running {
+                background-color: #e3f2fd;
+                color: #1976d2;
+            }
+
+            &.status-completed {
+                background-color: #e8f5e8;
+                color: #388e3c;
+            }
+
+            &.status-failed {
+                background-color: #ffebee;
+                color: #d32f2f;
+            }
+
+            &.status-idle {
+                background-color: #f3e5f5;
+                color: #7b1fa2;
+            }
+        }
+
+        .execution-time {
+            font-size: 0.8rem;
+            color: #666;
         }
     }
 }

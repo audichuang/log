@@ -1198,3 +1198,2034 @@ java.lang.RuntimeException: 測試異常記錄
 2025-05-24 06:34:20.875 [SpringApplicationShutdownHook] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean [] [] [] - Closing JPA EntityManagerFactory for persistence unit 'default'
 2025-05-24 06:34:20.877 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [] [] [] - HikariPool-1 - Shutdown initiated...
 2025-05-24 06:34:20.879 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [] [] [] - HikariPool-1 - Shutdown completed.
+2025-05-25 05:03:12.561 [main] INFO  cub.ret.tru.BatchLogSystemApplication [] [] [] - Starting BatchLogSystemApplication using Java 17.0.15 with PID 93275 (/Users/audi/Downloads/log/target/classes started by audi in /Users/audi/Downloads/log)
+2025-05-25 05:03:12.564 [main] DEBUG cub.ret.tru.BatchLogSystemApplication [] [] [] - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-05-25 05:03:12.564 [main] INFO  cub.ret.tru.BatchLogSystemApplication [] [] [] - No active profile set, falling back to 1 default profile: "default"
+2025-05-25 05:03:12.736 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchRegistrar [] [] [] - Finished Spring Batch infrastructure beans configuration in 1 ms.
+2025-05-25 05:03:12.807 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate [] [] [] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-25 05:03:12.831 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate [] [] [] - Finished Spring Data repository scanning in 22 ms. Found 3 JPA repository interfaces.
+2025-05-25 05:03:12.932 [main] WARN  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker [] [] [] - Bean 'jobRegistry' of type [org.springframework.batch.core.configuration.support.MapJobRegistry] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-05-25 05:03:13.025 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer [] [] [] - Tomcat initialized with port 8089 (http)
+2025-05-25 05:03:13.029 [main] INFO  org.apache.coyote.http11.Http11NioProtocol [] [] [] - Initializing ProtocolHandler ["http-nio-8089"]
+2025-05-25 05:03:13.030 [main] INFO  org.apache.catalina.core.StandardService [] [] [] - Starting service [Tomcat]
+2025-05-25 05:03:13.030 [main] INFO  org.apache.catalina.core.StandardEngine [] [] [] - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-05-25 05:03:13.049 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] [] [] [] - Initializing Spring embedded WebApplicationContext
+2025-05-25 05:03:13.050 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext [] [] [] - Root WebApplicationContext: initialization completed in 469 ms
+2025-05-25 05:03:13.105 [main] INFO  org.hibernate.jpa.internal.util.LogHelper [] [] [] - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-25 05:03:13.125 [main] INFO  org.hibernate.Version [] [] [] - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-05-25 05:03:13.135 [main] INFO  org.hibernate.cache.internal.RegionFactoryInitiator [] [] [] - HHH000026: Second-level cache disabled
+2025-05-25 05:03:13.203 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo [] [] [] - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-25 05:03:13.212 [main] INFO  com.zaxxer.hikari.HikariDataSource [] [] [] - HikariPool-1 - Starting...
+2025-05-25 05:03:13.301 [main] INFO  com.zaxxer.hikari.pool.HikariPool [] [] [] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5f20b6fe
+2025-05-25 05:03:13.302 [main] INFO  com.zaxxer.hikari.HikariDataSource [] [] [] - HikariPool-1 - Start completed.
+2025-05-25 05:03:13.322 [main] WARN  org.hibernate.orm.deprecation [] [] [] - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-25 05:03:13.638 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator [] [] [] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-25 05:03:13.693 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean [] [] [] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-25 05:03:13.711 [main] INFO  org.springframework.batch.core.repository.support.JobRepositoryFactoryBean [] [] [] - No database type set, using meta data indicating: POSTGRES
+2025-05-25 05:03:13.717 [main] INFO  org.springframework.batch.core.launch.support.SimpleJobLauncher [] [] [] - No TaskExecutor has been set, defaulting to synchronous executor.
+2025-05-25 05:03:13.801 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory [] [] [] - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-25 05:03:14.112 [main] INFO  cub.ret.tru.batch.service.LogQueryService [] [] [] - 已載入 5 個查詢策略
+2025-05-25 05:03:14.112 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: DefaultQueryStrategy - 優先級: 2147483647
+2025-05-25 05:03:14.113 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: ExecutionIdQueryStrategy - 優先級: 1
+2025-05-25 05:03:14.113 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: JobNameQueryStrategy - 優先級: 2
+2025-05-25 05:03:14.113 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: KeywordQueryStrategy - 優先級: 4
+2025-05-25 05:03:14.113 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: TimeRangeQueryStrategy - 優先級: 5
+2025-05-25 05:03:14.124 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:03:14.124 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:03:14.125 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:03:14.125 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:03:14.126 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:03:14.141 [main] WARN  org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration$JpaWebConfiguration [] [] [] - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-25 05:03:14.271 [main] INFO  org.apache.coyote.http11.Http11NioProtocol [] [] [] - Starting ProtocolHandler ["http-nio-8089"]
+2025-05-25 05:03:14.279 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer [] [] [] - Tomcat started on port 8089 (http) with context path ''
+2025-05-25 05:03:14.282 [main] INFO  cub.ret.tru.BatchLogSystemApplication [] [] [] - Started BatchLogSystemApplication in 1.864 seconds (process running for 2.363)
+2025-05-25 05:03:14.966 [http-nio-8089-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] [] [] [] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-25 05:03:14.966 [http-nio-8089-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet [] [] [] - Initializing Servlet 'dispatcherServlet'
+2025-05-25 05:03:14.967 [http-nio-8089-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet [] [] [] - Completed initialization in 1 ms
+2025-05-25 05:03:14.990 [http-nio-8089-exec-1] INFO  cub.ret.tru.batch.controller.OptimizedLogController [] [] [] - 建立日誌串流連接: 96c11f94-382f-42ee-b45a-af57c83d2ee5
+2025-05-25 05:03:14.991 [http-nio-8089-exec-1] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 建立 SSE 連接: 96c11f94-382f-42ee-b45a-af57c83d2ee5
+2025-05-25 05:03:14.992 [http-nio-8089-exec-1] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 執行日誌查詢，條件: LogQueryCriteria(executionId=null, jobName=GET_EMPLOYEE_JOB, stepName=null, logLevels=null, keyword=null, startTime=null, endTime=null, limit=50, sortDirection=null, queryType=REAL_TIME)
+2025-05-25 05:03:14.994 [http-nio-8089-exec-1] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 選擇策略: JobNameQueryStrategy
+2025-05-25 05:03:14.994 [http-nio-8089-exec-1] DEBUG cub.ret.tru.batch.service.query.JobNameQueryStrategy [] [] [] - 使用作業名稱查詢策略: GET_EMPLOYEE_JOB
+2025-05-25 05:03:15.023 [http-nio-8089-exec-1] DEBUG org.hibernate.SQL [] [] [] - 
+    select
+        ble1_0.id,
+        ble1_0.additional_info,
+        ble1_0.created_at,
+        ble1_0.exception_stack,
+        ble1_0.execution_id,
+        ble1_0.job_name,
+        ble1_0.log_level,
+        ble1_0.log_time,
+        ble1_0.logger_name,
+        ble1_0.message,
+        ble1_0.step_name,
+        ble1_0.thread_name 
+    from
+        batch_log ble1_0 
+    where
+        ble1_0.job_name=? 
+    order by
+        ble1_0.log_time desc
+2025-05-25 05:03:15.127 [http-nio-8089-exec-1] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 查詢完成，返回 50 筆記錄
+2025-05-25 05:03:16.183 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:18.203 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:20.217 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:22.228 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:24.247 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:26.258 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:28.276 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:30.291 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:30.602 [http-nio-8089-exec-3] DEBUG org.hibernate.SQL [] [] [] - 
+    select
+        bje1_0.job_id,
+        bje1_0.category,
+        bje1_0.created_at,
+        bje1_0.description,
+        bje1_0.display_name,
+        bje1_0.enabled,
+        bje1_0.estimated_duration,
+        bje1_0.is_scheduled,
+        bje1_0.last_execution_id,
+        bje1_0.last_execution_time,
+        bje1_0.job_name,
+        bje1_0.next_scheduled_time,
+        bje1_0.status,
+        bje1_0.updated_at 
+    from
+        batch_job_info bje1_0 
+    where
+        bje1_0.enabled 
+    order by
+        bje1_0.updated_at desc
+2025-05-25 05:03:32.313 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:32.528 [http-nio-8089-exec-2] DEBUG org.hibernate.SQL [] [] [] - 
+    select
+        bee1_0.execution_id,
+        bee1_0.created_at,
+        bee1_0.end_time,
+        bee1_0.error_message,
+        bee1_0.failed_count,
+        bee1_0.job_name,
+        bee1_0.message,
+        bee1_0.processed_count,
+        bee1_0.start_time,
+        bee1_0.status,
+        bee1_0.success_count,
+        bee1_0.updated_at 
+    from
+        batch_execution bee1_0 
+    where
+        bee1_0.job_name=? 
+    order by
+        bee1_0.start_time desc
+2025-05-25 05:03:32.564 [http-nio-8089-exec-4] INFO  cub.ret.tru.batch.controller.OptimizedLogController [] [] [] - 建立日誌串流連接: ba6eeb69-4e3a-488d-a273-eb47dba88819
+2025-05-25 05:03:32.564 [http-nio-8089-exec-4] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 建立 SSE 連接: ba6eeb69-4e3a-488d-a273-eb47dba88819
+2025-05-25 05:03:32.564 [http-nio-8089-exec-4] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 執行日誌查詢，條件: LogQueryCriteria(executionId=null, jobName=GET_EMPLOYEE_JOB, stepName=null, logLevels=null, keyword=null, startTime=null, endTime=null, limit=50, sortDirection=null, queryType=REAL_TIME)
+2025-05-25 05:03:32.564 [http-nio-8089-exec-4] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 選擇策略: JobNameQueryStrategy
+2025-05-25 05:03:32.564 [http-nio-8089-exec-4] DEBUG cub.ret.tru.batch.service.query.JobNameQueryStrategy [] [] [] - 使用作業名稱查詢策略: GET_EMPLOYEE_JOB
+2025-05-25 05:03:32.566 [http-nio-8089-exec-4] DEBUG org.hibernate.SQL [] [] [] - 
+    select
+        ble1_0.id,
+        ble1_0.additional_info,
+        ble1_0.created_at,
+        ble1_0.exception_stack,
+        ble1_0.execution_id,
+        ble1_0.job_name,
+        ble1_0.log_level,
+        ble1_0.log_time,
+        ble1_0.logger_name,
+        ble1_0.message,
+        ble1_0.step_name,
+        ble1_0.thread_name 
+    from
+        batch_log ble1_0 
+    where
+        ble1_0.job_name=? 
+    order by
+        ble1_0.log_time desc
+2025-05-25 05:03:32.649 [http-nio-8089-exec-4] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 查詢完成，返回 50 筆記錄
+2025-05-25 05:03:33.652 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:34.332 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:35.664 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:35.869 [http-nio-8089-exec-5] INFO  cub.ret.tru.batch.controller.OptimizedLogController [] [] [] - 建立日誌串流連接: a1eac778-4560-4247-b0b1-c73314a2e902
+2025-05-25 05:03:35.869 [http-nio-8089-exec-5] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 建立 SSE 連接: a1eac778-4560-4247-b0b1-c73314a2e902
+2025-05-25 05:03:35.871 [http-nio-8089-exec-5] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 執行日誌查詢，條件: LogQueryCriteria(executionId=null, jobName=GET_EMPLOYEE_JOB, stepName=null, logLevels=[DEBUG], keyword=null, startTime=null, endTime=null, limit=50, sortDirection=null, queryType=REAL_TIME)
+2025-05-25 05:03:35.871 [http-nio-8089-exec-5] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 選擇策略: JobNameQueryStrategy
+2025-05-25 05:03:35.871 [http-nio-8089-exec-5] DEBUG cub.ret.tru.batch.service.query.JobNameQueryStrategy [] [] [] - 使用作業名稱查詢策略: GET_EMPLOYEE_JOB
+2025-05-25 05:03:35.874 [http-nio-8089-exec-5] DEBUG org.hibernate.SQL [] [] [] - 
+    select
+        ble1_0.id,
+        ble1_0.additional_info,
+        ble1_0.created_at,
+        ble1_0.exception_stack,
+        ble1_0.execution_id,
+        ble1_0.job_name,
+        ble1_0.log_level,
+        ble1_0.log_time,
+        ble1_0.logger_name,
+        ble1_0.message,
+        ble1_0.step_name,
+        ble1_0.thread_name 
+    from
+        batch_log ble1_0 
+    where
+        ble1_0.job_name=? 
+    order by
+        ble1_0.log_time desc
+2025-05-25 05:03:35.968 [http-nio-8089-exec-5] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 查詢完成，返回 50 筆記錄
+2025-05-25 05:03:36.343 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:36.973 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:37.682 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:38.362 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:38.985 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:39.701 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:40.374 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:40.996 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:41.714 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:42.390 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:43.011 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:43.729 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:44.404 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:45.025 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:45.746 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:46.418 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:47.040 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:47.761 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:48.440 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:49.060 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:49.778 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:50.459 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:51.076 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:51.792 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:52.473 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:53.096 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:53.812 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:54.496 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:55.112 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:55.832 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:56.514 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:57.131 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:57.853 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:58.532 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:59.150 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:03:59.873 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:00.549 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:01.172 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:01.889 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:02.567 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:03.191 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:03.907 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:04.587 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:05.211 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:05.928 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:06.601 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:07.227 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:07.943 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:08.614 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:09.241 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:09.963 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:10.628 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:11.258 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:11.982 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:12.646 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:13.273 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:13.997 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:14.661 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:15.289 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:16.015 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:16.680 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:17.302 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:18.033 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:18.697 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:19.326 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:20.050 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:20.713 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:21.354 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:22.070 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:22.727 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:23.374 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:24.084 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:24.740 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:25.392 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:26.101 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:26.761 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:27.409 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:28.121 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:28.778 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:29.423 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:30.138 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:30.794 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:31.439 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:32.149 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:32.808 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:33.450 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:34.163 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:34.820 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:35.465 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:36.184 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:36.838 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:37.476 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:38.197 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:38.854 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:39.493 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:40.210 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:40.871 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:41.510 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:42.224 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:42.892 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:43.528 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:44.238 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:44.911 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:45.543 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:46.252 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:46.925 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:47.556 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:48.263 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:48.938 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:49.574 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:50.281 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:50.954 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:51.591 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:52.298 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:52.974 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:53.609 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:54.314 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:54.990 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:55.628 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:56.330 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:57.012 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:57.643 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:58.346 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:59.028 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:04:59.659 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:05:00.362 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:05:01.041 [pool-3-thread-2] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:05:01.677 [pool-3-thread-1] DEBUG org.hibernate.SQL [] [] [] - 
+    SELECT
+        * 
+    FROM
+        batch_log 
+    WHERE
+        log_time > ? 
+    ORDER BY
+        log_time DESC 
+    LIMIT
+        ?
+2025-05-25 05:05:02.148 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - SSE 連接超時: 96c11f94-382f-42ee-b45a-af57c83d2ee5
+2025-05-25 05:05:02.148 [http-nio-8089-exec-8] WARN  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - SSE 連接超時: ba6eeb69-4e3a-488d-a273-eb47dba88819
+2025-05-25 05:05:02.148 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 已清理連接: 96c11f94-382f-42ee-b45a-af57c83d2ee5
+2025-05-25 05:05:02.148 [http-nio-8089-exec-7] WARN  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - SSE 連接超時: a1eac778-4560-4247-b0b1-c73314a2e902
+2025-05-25 05:05:02.148 [http-nio-8089-exec-8] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 已清理連接: ba6eeb69-4e3a-488d-a273-eb47dba88819
+2025-05-25 05:05:02.148 [http-nio-8089-exec-7] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 已清理連接: a1eac778-4560-4247-b0b1-c73314a2e902
+2025-05-25 05:05:02.154 [http-nio-8089-exec-6] WARN  org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver [] [] [] - Ignoring exception, response committed. : org.springframework.web.context.request.async.AsyncRequestTimeoutException
+2025-05-25 05:05:02.154 [http-nio-8089-exec-7] WARN  org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver [] [] [] - Ignoring exception, response committed. : org.springframework.web.context.request.async.AsyncRequestTimeoutException
+2025-05-25 05:05:02.154 [http-nio-8089-exec-8] WARN  org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver [] [] [] - Ignoring exception, response committed. : org.springframework.web.context.request.async.AsyncRequestTimeoutException
+2025-05-25 05:05:02.154 [http-nio-8089-exec-7] WARN  org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver [] [] [] - Resolved [org.springframework.web.context.request.async.AsyncRequestTimeoutException]
+2025-05-25 05:05:02.154 [http-nio-8089-exec-6] WARN  org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver [] [] [] - Resolved [org.springframework.web.context.request.async.AsyncRequestTimeoutException]
+2025-05-25 05:05:02.154 [http-nio-8089-exec-8] WARN  org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver [] [] [] - Resolved [org.springframework.web.context.request.async.AsyncRequestTimeoutException]
+2025-05-25 05:05:02.156 [http-nio-8089-exec-8] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - SSE 連接完成: ba6eeb69-4e3a-488d-a273-eb47dba88819
+2025-05-25 05:05:02.156 [http-nio-8089-exec-7] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - SSE 連接完成: a1eac778-4560-4247-b0b1-c73314a2e902
+2025-05-25 05:05:02.156 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - SSE 連接完成: 96c11f94-382f-42ee-b45a-af57c83d2ee5
+2025-05-25 05:05:02.156 [http-nio-8089-exec-8] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 已清理連接: ba6eeb69-4e3a-488d-a273-eb47dba88819
+2025-05-25 05:05:02.156 [http-nio-8089-exec-7] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 已清理連接: a1eac778-4560-4247-b0b1-c73314a2e902
+2025-05-25 05:05:02.156 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 已清理連接: 96c11f94-382f-42ee-b45a-af57c83d2ee5
+2025-05-25 05:05:03.649 [main] INFO  cub.ret.tru.BatchLogSystemApplication [] [] [] - Starting BatchLogSystemApplication using Java 17.0.15 with PID 93520 (/Users/audi/Downloads/log/target/classes started by audi in /Users/audi/Downloads/log)
+2025-05-25 05:05:03.651 [main] DEBUG cub.ret.tru.BatchLogSystemApplication [] [] [] - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-05-25 05:05:03.652 [main] INFO  cub.ret.tru.BatchLogSystemApplication [] [] [] - No active profile set, falling back to 1 default profile: "default"
+2025-05-25 05:05:03.817 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchRegistrar [] [] [] - Finished Spring Batch infrastructure beans configuration in 1 ms.
+2025-05-25 05:05:03.880 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate [] [] [] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-25 05:05:03.901 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate [] [] [] - Finished Spring Data repository scanning in 20 ms. Found 3 JPA repository interfaces.
+2025-05-25 05:05:03.997 [main] WARN  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker [] [] [] - Bean 'jobRegistry' of type [org.springframework.batch.core.configuration.support.MapJobRegistry] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-05-25 05:05:04.090 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer [] [] [] - Tomcat initialized with port 8089 (http)
+2025-05-25 05:05:04.093 [main] INFO  org.apache.coyote.http11.Http11NioProtocol [] [] [] - Initializing ProtocolHandler ["http-nio-8089"]
+2025-05-25 05:05:04.094 [main] INFO  org.apache.catalina.core.StandardService [] [] [] - Starting service [Tomcat]
+2025-05-25 05:05:04.094 [main] INFO  org.apache.catalina.core.StandardEngine [] [] [] - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-05-25 05:05:04.112 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] [] [] [] - Initializing Spring embedded WebApplicationContext
+2025-05-25 05:05:04.112 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext [] [] [] - Root WebApplicationContext: initialization completed in 444 ms
+2025-05-25 05:05:04.165 [main] INFO  org.hibernate.jpa.internal.util.LogHelper [] [] [] - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-25 05:05:04.182 [main] INFO  org.hibernate.Version [] [] [] - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-05-25 05:05:04.194 [main] INFO  org.hibernate.cache.internal.RegionFactoryInitiator [] [] [] - HHH000026: Second-level cache disabled
+2025-05-25 05:05:04.274 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo [] [] [] - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-25 05:05:04.284 [main] INFO  com.zaxxer.hikari.HikariDataSource [] [] [] - HikariPool-1 - Starting...
+2025-05-25 05:05:04.386 [main] INFO  com.zaxxer.hikari.pool.HikariPool [] [] [] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@356fa0d1
+2025-05-25 05:05:04.387 [main] INFO  com.zaxxer.hikari.HikariDataSource [] [] [] - HikariPool-1 - Start completed.
+2025-05-25 05:05:04.406 [main] WARN  org.hibernate.orm.deprecation [] [] [] - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-25 05:05:04.714 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator [] [] [] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-25 05:05:04.767 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean [] [] [] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-25 05:05:04.783 [main] INFO  org.springframework.batch.core.repository.support.JobRepositoryFactoryBean [] [] [] - No database type set, using meta data indicating: POSTGRES
+2025-05-25 05:05:04.790 [main] INFO  org.springframework.batch.core.launch.support.SimpleJobLauncher [] [] [] - No TaskExecutor has been set, defaulting to synchronous executor.
+2025-05-25 05:05:04.877 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory [] [] [] - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-25 05:05:05.186 [main] INFO  cub.ret.tru.batch.service.LogQueryService [] [] [] - 已載入 5 個查詢策略
+2025-05-25 05:05:05.187 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: DefaultQueryStrategy - 優先級: 2147483647
+2025-05-25 05:05:05.187 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: ExecutionIdQueryStrategy - 優先級: 1
+2025-05-25 05:05:05.187 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: JobNameQueryStrategy - 優先級: 2
+2025-05-25 05:05:05.187 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: KeywordQueryStrategy - 優先級: 4
+2025-05-25 05:05:05.187 [main] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 策略: TimeRangeQueryStrategy - 優先級: 5
+2025-05-25 05:05:05.199 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:05:05.200 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:05:05.200 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:05:05.200 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:05:05.202 [main] INFO  org.springframework.batch.core.configuration.annotation.BatchObservabilityBeanPostProcessor [] [] [] - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-05-25 05:05:05.217 [main] WARN  org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration$JpaWebConfiguration [] [] [] - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-25 05:05:05.355 [main] INFO  org.apache.coyote.http11.Http11NioProtocol [] [] [] - Starting ProtocolHandler ["http-nio-8089"]
+2025-05-25 05:05:05.362 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer [] [] [] - Tomcat started on port 8089 (http) with context path ''
+2025-05-25 05:05:05.365 [main] INFO  cub.ret.tru.BatchLogSystemApplication [] [] [] - Started BatchLogSystemApplication in 1.855 seconds (process running for 2.316)
+2025-05-25 05:05:08.204 [http-nio-8089-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] [] [] [] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-25 05:05:08.204 [http-nio-8089-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet [] [] [] - Initializing Servlet 'dispatcherServlet'
+2025-05-25 05:05:08.205 [http-nio-8089-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet [] [] [] - Completed initialization in 1 ms
+2025-05-25 05:05:08.227 [http-nio-8089-exec-1] INFO  cub.ret.tru.batch.controller.OptimizedLogController [] [] [] - 建立日誌串流連接: df45d061-859c-4f81-90ca-14eecce99513
+2025-05-25 05:05:08.228 [http-nio-8089-exec-1] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 建立 SSE 連接: df45d061-859c-4f81-90ca-14eecce99513
+2025-05-25 05:05:08.229 [http-nio-8089-exec-1] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 執行日誌查詢，條件: LogQueryCriteria(executionId=null, jobName=GET_EMPLOYEE_JOB, stepName=null, logLevels=[DEBUG], keyword=null, startTime=null, endTime=null, limit=50, sortDirection=null, queryType=REAL_TIME)
+2025-05-25 05:05:08.231 [http-nio-8089-exec-1] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 選擇策略: JobNameQueryStrategy
+2025-05-25 05:05:08.231 [http-nio-8089-exec-1] DEBUG cub.ret.tru.batch.service.query.JobNameQueryStrategy [] [] [] - 使用作業名稱查詢策略: GET_EMPLOYEE_JOB
+2025-05-25 05:05:08.372 [http-nio-8089-exec-1] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 查詢完成，返回 50 筆記錄
+2025-05-25 05:05:12.091 [http-nio-8089-exec-4] INFO  cub.ret.tru.batch.controller.OptimizedLogController [] [] [] - 建立日誌串流連接: b9e6ac0c-83ac-45ae-96e3-4874eeee9a97
+2025-05-25 05:05:12.092 [http-nio-8089-exec-4] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 建立 SSE 連接: b9e6ac0c-83ac-45ae-96e3-4874eeee9a97
+2025-05-25 05:05:12.092 [http-nio-8089-exec-4] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 執行日誌查詢，條件: LogQueryCriteria(executionId=null, jobName=GET_EMPLOYEE_JOB, stepName=null, logLevels=null, keyword=null, startTime=null, endTime=null, limit=50, sortDirection=null, queryType=REAL_TIME)
+2025-05-25 05:05:12.092 [http-nio-8089-exec-4] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 選擇策略: JobNameQueryStrategy
+2025-05-25 05:05:12.093 [http-nio-8089-exec-4] DEBUG cub.ret.tru.batch.service.query.JobNameQueryStrategy [] [] [] - 使用作業名稱查詢策略: GET_EMPLOYEE_JOB
+2025-05-25 05:05:12.238 [http-nio-8089-exec-4] DEBUG cub.ret.tru.batch.service.LogQueryService [] [] [] - 查詢完成，返回 50 筆記錄
+2025-05-25 05:05:19.069 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.launch.support.SimpleJobLauncher [] [] [] - Job: [SimpleJob: [name=GET_EMPLOYEE_JOB]] launched with the following parameters: [{'timestamp':'{value=1748120718945, type=class java.lang.Long, identifying=true}'}]
+2025-05-25 05:05:19.113 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [] - === 作業開始執行 ===
+2025-05-25 05:05:19.114 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [] - 執行代號: 202505250505GET_EMPLOYEE_JOB
+2025-05-25 05:05:19.114 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [] - 作業名稱: GET_EMPLOYEE_JOB
+2025-05-25 05:05:19.114 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [] - 作業實例ID: 48
+2025-05-25 05:05:19.114 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [] - 作業執行ID: 48
+2025-05-25 05:05:19.115 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [] - 開始時間: 2025-05-25T05:05:19.088557
+2025-05-25 05:05:19.189 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.job.SimpleStepHandler [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [] - Executing step: [initializeEmployeeJobContextStep]
+2025-05-25 05:05:19.229 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 【DEBUG】進入初始化步驟
+2025-05-25 05:05:19.249 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - STEP 1: 初始化 GET_EMPLOYEE_JOB 作業上下文
+2025-05-25 05:05:19.263 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 【DEBUG】讀取配置參數 - filePath: test-files/ftppool, backupPath: test-files/ftppool/Backup
+2025-05-25 05:05:19.279 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 【DEBUG】組合檔案路徑: test-files/ftppool/BOND_MEMMARK.txt
+2025-05-25 05:05:19.294 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 【DEBUG】參數設定到執行上下文完成
+2025-05-25 05:05:19.314 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 資料檔案路徑: test-files/ftppool/BOND_MEMMARK.txt
+2025-05-25 05:05:19.314 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 備份檔案路徑: test-files/ftppool/Backup
+2025-05-25 05:05:19.314 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 原始檔案名稱: BOND_MEMMARK.txt
+2025-05-25 05:05:19.314 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 執行代號: 202505250505GET_EMPLOYEE_JOB
+2025-05-25 05:05:19.333 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - 【DEBUG】初始化步驟完成
+2025-05-25 05:05:19.402 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.step.AbstractStep [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - Step: [initializeEmployeeJobContextStep] executed in 212ms
+2025-05-25 05:05:19.494 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.job.SimpleStepHandler [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [initializeEmployeeJobContextStep] - Executing step: [processEmployeeFileStep]
+2025-05-25 05:05:19.527 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】進入檔案處理步驟
+2025-05-25 05:05:19.545 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - STEP 2: 開始處理行員檔案
+2025-05-25 05:05:19.565 [http-nio-8089-exec-7] ERROR cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - SSE 連接錯誤: df45d061-859c-4f81-90ca-14eecce99513 - Broken pipe
+2025-05-25 05:05:19.565 [http-nio-8089-exec-7] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 已清理連接: df45d061-859c-4f81-90ca-14eecce99513
+2025-05-25 05:05:19.565 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】準備調用 GetEmployeeJobTasklet
+2025-05-25 05:05:19.564 [pool-3-thread-2] ERROR cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 發送增量日誌失敗: df45d061-859c-4f81-90ca-14eecce99513
+org.apache.catalina.connector.ClientAbortException: java.io.IOException: Broken pipe
+	at org.apache.catalina.connector.OutputBuffer.doFlush(OutputBuffer.java:305) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.catalina.connector.OutputBuffer.flush(OutputBuffer.java:267) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.catalina.connector.CoyoteOutputStream.flush(CoyoteOutputStream.java:120) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at java.base/java.io.FilterOutputStream.flush(FilterOutputStream.java:153) ~[?:?]
+	at com.fasterxml.jackson.core.json.UTF8JsonGenerator.flush(UTF8JsonGenerator.java:1200) ~[jackson-core-2.15.3.jar:2.15.3]
+	at com.fasterxml.jackson.databind.ObjectWriter.writeValue(ObjectWriter.java:1063) ~[jackson-databind-2.15.3.jar:2.15.3]
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.writeInternal(AbstractJackson2HttpMessageConverter.java:483) ~[spring-web-6.1.1.jar:6.1.1]
+	at org.springframework.http.converter.AbstractGenericHttpMessageConverter.writeInternal(AbstractGenericHttpMessageConverter.java:123) ~[spring-web-6.1.1.jar:6.1.1]
+	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:236) ~[spring-web-6.1.1.jar:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitterReturnValueHandler$HttpMessageConvertingHandler.sendInternal(ResponseBodyEmitterReturnValueHandler.java:221) ~[spring-webmvc-6.1.1.jar:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitterReturnValueHandler$HttpMessageConvertingHandler.send(ResponseBodyEmitterReturnValueHandler.java:212) ~[spring-webmvc-6.1.1.jar:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter.sendInternal(ResponseBodyEmitter.java:234) ~[spring-webmvc-6.1.1.jar:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter.send(ResponseBodyEmitter.java:225) ~[spring-webmvc-6.1.1.jar:6.1.1]
+	at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:135) ~[spring-webmvc-6.1.1.jar:6.1.1]
+	at cub.ret.tru.batch.service.OptimizedLogStreamService.lambda$startPolling$3(OptimizedLogStreamService.java:110) ~[classes/:?]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) [?:?]
+	at java.base/java.util.concurrent.FutureTask.runAndReset$$$capture(FutureTask.java:305) [?:?]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java) [?:?]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) [?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) [?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) [?:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+Caused by: java.io.IOException: Broken pipe
+	at java.base/sun.nio.ch.FileDispatcherImpl.write0(Native Method) ~[?:?]
+	at java.base/sun.nio.ch.SocketDispatcher.write(SocketDispatcher.java:62) ~[?:?]
+	at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:132) ~[?:?]
+	at java.base/sun.nio.ch.IOUtil.write(IOUtil.java:97) ~[?:?]
+	at java.base/sun.nio.ch.IOUtil.write(IOUtil.java:53) ~[?:?]
+	at java.base/sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:532) ~[?:?]
+	at org.apache.tomcat.util.net.NioChannel.write(NioChannel.java:118) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.doWrite(NioEndpoint.java:1381) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.tomcat.util.net.SocketWrapperBase.doWrite(SocketWrapperBase.java:764) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.tomcat.util.net.SocketWrapperBase.flushBlocking(SocketWrapperBase.java:728) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.tomcat.util.net.SocketWrapperBase.flush(SocketWrapperBase.java:712) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.coyote.http11.Http11OutputBuffer$SocketOutputBuffer.flush(Http11OutputBuffer.java:566) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.coyote.http11.filters.ChunkedOutputFilter.flush(ChunkedOutputFilter.java:157) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.coyote.http11.Http11OutputBuffer.flush(Http11OutputBuffer.java:220) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.coyote.http11.Http11Processor.flush(Http11Processor.java:1245) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.coyote.AbstractProcessor.action(AbstractProcessor.java:400) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.coyote.Response.action(Response.java:208) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	at org.apache.catalina.connector.OutputBuffer.doFlush(OutputBuffer.java:301) ~[tomcat-embed-core-10.1.16.jar:10.1.16]
+	... 21 more
+2025-05-25 05:05:19.568 [pool-3-thread-2] INFO  cub.ret.tru.batch.service.OptimizedLogStreamService [] [] [] - 已清理連接: df45d061-859c-4f81-90ca-14eecce99513
+2025-05-25 05:05:19.583 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】進入 GetEmployeeJobTasklet.execute()
+2025-05-25 05:05:19.597 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】取得檔案路徑參數: test-files/ftppool/BOND_MEMMARK.txt
+2025-05-25 05:05:19.614 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 開始處理行員檔案: test-files/ftppool/BOND_MEMMARK.txt
+2025-05-25 05:05:19.631 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】檢查檔案是否存在: true
+2025-05-25 05:05:19.647 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】開始讀取檔案行數
+2025-05-25 05:05:19.673 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 檔案總行數: 31
+2025-05-25 05:05:19.689 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 正在解析行員檔案...
+2025-05-25 05:05:19.715 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】處理批次 1-31, 批次大小: 31
+2025-05-25 05:05:19.838 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 處理進度: 31/31 ({:.1f}%), 錯誤記錄: 100.0
+2025-05-25 05:05:19.857 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】檔案處理邏輯完成，開始統計
+2025-05-25 05:05:19.874 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 行員檔案處理完成
+2025-05-25 05:05:19.874 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 總處理記錄數: 31
+2025-05-25 05:05:19.874 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 錯誤記錄數: 0
+2025-05-25 05:05:19.874 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 成功處理率: {:.2f}%
+2025-05-25 05:05:19.945 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】GetEmployeeJobTasklet.execute() 正常結束
+2025-05-25 05:05:19.967 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - 【DEBUG】GetEmployeeJobTasklet 執行完成，結果: FINISHED
+2025-05-25 05:05:20.036 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.step.AbstractStep [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - Step: [processEmployeeFileStep] executed in 541ms
+2025-05-25 05:05:20.109 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.job.SimpleStepHandler [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [processEmployeeFileStep] - Executing step: [dataValidationStep]
+2025-05-25 05:05:20.142 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】進入資料驗證步驟
+2025-05-25 05:05:20.169 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - STEP 3: 開始資料驗證
+2025-05-25 05:05:20.190 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【驗證警告】檢測到大量資料，驗證時間可能較長
+2025-05-25 05:05:20.206 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】準備調用 DataValidationTasklet
+2025-05-25 05:05:20.220 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】開始資料驗證程序
+2025-05-25 05:05:20.238 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - === 階段1: 資料格式驗證 ===
+2025-05-25 05:05:20.251 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】載入格式驗證規則
+2025-05-25 05:05:20.265 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 1 - 檢查欄位格式
+2025-05-25 05:05:20.280 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 2 - 檢查欄位格式
+2025-05-25 05:05:20.301 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 3 - 檢查欄位格式
+2025-05-25 05:05:20.318 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式警告】記錄 3 的日期格式不符合標準
+2025-05-25 05:05:20.338 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 4 - 檢查欄位格式
+2025-05-25 05:05:20.355 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式警告】記錄 4 的日期格式不符合標準
+2025-05-25 05:05:20.372 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 5 - 檢查欄位格式
+2025-05-25 05:05:20.391 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 6 - 檢查欄位格式
+2025-05-25 05:05:20.410 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 7 - 檢查欄位格式
+2025-05-25 05:05:20.439 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 8 - 檢查欄位格式
+2025-05-25 05:05:20.456 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式警告】記錄 8 的日期格式不符合標準
+2025-05-25 05:05:20.471 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 9 - 檢查欄位格式
+2025-05-25 05:05:20.494 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 10 - 檢查欄位格式
+2025-05-25 05:05:20.569 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 格式驗證進度: 10/50
+2025-05-25 05:05:20.591 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 11 - 檢查欄位格式
+2025-05-25 05:05:20.611 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 12 - 檢查欄位格式
+2025-05-25 05:05:20.632 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 13 - 檢查欄位格式
+2025-05-25 05:05:20.653 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 14 - 檢查欄位格式
+2025-05-25 05:05:20.672 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式警告】記錄 14 的日期格式不符合標準
+2025-05-25 05:05:20.700 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 15 - 檢查欄位格式
+2025-05-25 05:05:20.716 [http-nio-8089-exec-6] ERROR cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式錯誤】記錄 15 含有非法字元
+2025-05-25 05:05:20.733 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 16 - 檢查欄位格式
+2025-05-25 05:05:20.756 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 17 - 檢查欄位格式
+2025-05-25 05:05:20.779 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 18 - 檢查欄位格式
+2025-05-25 05:05:20.801 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 19 - 檢查欄位格式
+2025-05-25 05:05:20.819 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 20 - 檢查欄位格式
+2025-05-25 05:05:20.898 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 格式驗證進度: 20/50
+2025-05-25 05:05:20.918 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 21 - 檢查欄位格式
+2025-05-25 05:05:20.934 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 22 - 檢查欄位格式
+2025-05-25 05:05:20.951 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式警告】記錄 22 的日期格式不符合標準
+2025-05-25 05:05:20.973 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 23 - 檢查欄位格式
+2025-05-25 05:05:20.989 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 24 - 檢查欄位格式
+2025-05-25 05:05:21.006 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 25 - 檢查欄位格式
+2025-05-25 05:05:21.025 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 26 - 檢查欄位格式
+2025-05-25 05:05:21.041 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 27 - 檢查欄位格式
+2025-05-25 05:05:21.066 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 28 - 檢查欄位格式
+2025-05-25 05:05:21.084 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 29 - 檢查欄位格式
+2025-05-25 05:05:21.100 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式警告】記錄 29 的日期格式不符合標準
+2025-05-25 05:05:21.125 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 30 - 檢查欄位格式
+2025-05-25 05:05:21.194 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 格式驗證進度: 30/50
+2025-05-25 05:05:21.209 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 31 - 檢查欄位格式
+2025-05-25 05:05:21.223 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 32 - 檢查欄位格式
+2025-05-25 05:05:21.248 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 33 - 檢查欄位格式
+2025-05-25 05:05:21.265 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式警告】記錄 33 的日期格式不符合標準
+2025-05-25 05:05:21.279 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 34 - 檢查欄位格式
+2025-05-25 05:05:21.295 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 35 - 檢查欄位格式
+2025-05-25 05:05:21.311 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 36 - 檢查欄位格式
+2025-05-25 05:05:21.327 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 37 - 檢查欄位格式
+2025-05-25 05:05:21.344 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 38 - 檢查欄位格式
+2025-05-25 05:05:21.365 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 39 - 檢查欄位格式
+2025-05-25 05:05:21.383 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 40 - 檢查欄位格式
+2025-05-25 05:05:21.403 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式警告】記錄 40 的日期格式不符合標準
+2025-05-25 05:05:21.474 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 格式驗證進度: 40/50
+2025-05-25 05:05:21.499 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 41 - 檢查欄位格式
+2025-05-25 05:05:21.517 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 42 - 檢查欄位格式
+2025-05-25 05:05:21.534 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 43 - 檢查欄位格式
+2025-05-25 05:05:21.553 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 44 - 檢查欄位格式
+2025-05-25 05:05:21.574 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 45 - 檢查欄位格式
+2025-05-25 05:05:21.591 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 46 - 檢查欄位格式
+2025-05-25 05:05:21.607 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 47 - 檢查欄位格式
+2025-05-25 05:05:21.625 [http-nio-8089-exec-6] ERROR cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【格式錯誤】記錄 47 含有非法字元
+2025-05-25 05:05:21.651 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 48 - 檢查欄位格式
+2025-05-25 05:05:21.676 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 49 - 檢查欄位格式
+2025-05-25 05:05:21.693 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】驗證記錄 50 - 檢查欄位格式
+2025-05-25 05:05:21.762 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 格式驗證進度: 50/50
+2025-05-25 05:05:21.785 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 格式驗證完成
+2025-05-25 05:05:21.801 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - === 階段2: 業務規則驗證 ===
+2025-05-25 05:05:21.824 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】載入業務規則引擎
+2025-05-25 05:05:21.841 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【規則引擎警告】某些業務規則可能已過期，建議更新
+2025-05-25 05:05:21.855 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行業務規則: 薪資範圍驗證
+2025-05-25 05:05:22.087 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【業務警告】規則 '薪資範圍驗證' 發現異常數據
+2025-05-25 05:05:22.105 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 業務規則 '薪資範圍驗證' 執行完成
+2025-05-25 05:05:22.123 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行業務規則: 部門編碼檢查
+2025-05-25 05:05:22.347 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 業務規則 '部門編碼檢查' 執行完成
+2025-05-25 05:05:22.371 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行業務規則: 職位層級驗證
+2025-05-25 05:05:22.595 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【業務警告】規則 '職位層級驗證' 發現異常數據
+2025-05-25 05:05:22.614 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 業務規則 '職位層級驗證' 執行完成
+2025-05-25 05:05:22.628 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行業務規則: 入職日期合理性
+2025-05-25 05:05:22.847 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 業務規則 '入職日期合理性' 執行完成
+2025-05-25 05:05:22.860 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行業務規則: 員工編號唯一性
+2025-05-25 05:05:23.082 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【業務警告】規則 '員工編號唯一性' 發現異常數據
+2025-05-25 05:05:23.105 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 業務規則 '員工編號唯一性' 執行完成
+2025-05-25 05:05:23.121 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行業務規則: 聯絡資訊完整性
+2025-05-25 05:05:23.340 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 業務規則 '聯絡資訊完整性' 執行完成
+2025-05-25 05:05:23.357 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 業務規則驗證完成
+2025-05-25 05:05:23.373 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - === 階段3: 資料完整性檢查 ===
+2025-05-25 05:05:23.390 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】建立完整性檢查索引
+2025-05-25 05:05:23.412 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行完整性檢查: 外鍵關聯檢查
+2025-05-25 05:05:23.730 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 完整性檢查 '外鍵關聯檢查' 完成
+2025-05-25 05:05:23.748 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行完整性檢查: 唯一性約束驗證
+2025-05-25 05:05:24.074 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 完整性檢查 '唯一性約束驗證' 完成
+2025-05-25 05:05:24.096 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行完整性檢查: 非空值檢查
+2025-05-25 05:05:24.412 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【完整性警告】'非空值檢查' 發現潛在問題
+2025-05-25 05:05:24.433 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 完整性檢查 '非空值檢查' 完成
+2025-05-25 05:05:24.450 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】執行完整性檢查: 參照完整性驗證
+2025-05-25 05:05:24.769 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 完整性檢查 '參照完整性驗證' 完成
+2025-05-25 05:05:24.787 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 資料完整性檢查完成
+2025-05-25 05:05:24.804 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - === 階段4: 效能監控 ===
+2025-05-25 05:05:24.820 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】啟動效能監控器
+2025-05-25 05:05:24.938 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 55%
+2025-05-25 05:05:24.957 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 41%
+2025-05-25 05:05:25.080 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 65%
+2025-05-25 05:05:25.097 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 45%
+2025-05-25 05:05:25.217 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 79%
+2025-05-25 05:05:25.234 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 73%
+2025-05-25 05:05:25.251 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【效能警告】CPU使用率過高: 79%
+2025-05-25 05:05:25.370 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 45%
+2025-05-25 05:05:25.387 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 63%
+2025-05-25 05:05:25.510 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 63%
+2025-05-25 05:05:25.537 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 80%
+2025-05-25 05:05:25.559 [http-nio-8089-exec-6] WARN  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【效能警告】內存使用率過高: 80%
+2025-05-25 05:05:25.680 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 62%
+2025-05-25 05:05:25.697 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 46%
+2025-05-25 05:05:25.817 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 67%
+2025-05-25 05:05:25.838 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 51%
+2025-05-25 05:05:25.966 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 55%
+2025-05-25 05:05:25.982 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 64%
+2025-05-25 05:05:26.099 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 68%
+2025-05-25 05:05:26.118 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 52%
+2025-05-25 05:05:26.243 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】CPU使用率: 49%
+2025-05-25 05:05:26.263 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】內存使用率: 69%
+2025-05-25 05:05:26.285 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 效能監控完成
+2025-05-25 05:05:26.303 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 平均回應時間: {:.2f}ms
+2025-05-25 05:05:26.323 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.DataValidationTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 資料驗證程序完成
+2025-05-25 05:05:26.344 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - 【DEBUG】DataValidationTasklet 執行完成，結果: FINISHED
+2025-05-25 05:05:26.429 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.step.AbstractStep [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - Step: [dataValidationStep] executed in 6s319ms
+2025-05-25 05:05:26.515 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.job.SimpleStepHandler [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [dataValidationStep] - Executing step: [backupEmployeeFileStep]
+2025-05-25 05:05:26.544 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】進入檔案備份步驟
+2025-05-25 05:05:26.560 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - STEP 4: 開始備份檔案
+2025-05-25 05:05:26.576 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】準備調用 TrustBackupFileTasklet
+2025-05-25 05:05:26.590 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】進入 TrustBackupFileTasklet.execute()
+2025-05-25 05:05:26.604 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】取得參數 - 來源: test-files/ftppool/BOND_MEMMARK.txt, 備份目錄: test-files/ftppool/Backup, 檔案名: BOND_MEMMARK.txt
+2025-05-25 05:05:26.620 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 開始備份檔案
+2025-05-25 05:05:26.620 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 來源檔案: test-files/ftppool/BOND_MEMMARK.txt
+2025-05-25 05:05:26.620 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 備份目錄: test-files/ftppool/Backup
+2025-05-25 05:05:26.639 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】檢查來源檔案: test-files/ftppool/BOND_MEMMARK.txt
+2025-05-25 05:05:26.654 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】來源檔案大小: 2029 bytes
+2025-05-25 05:05:26.670 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】檢查備份目錄是否存在: true
+2025-05-25 05:05:26.688 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】生成備份檔案名稱: BOND_MEMMARK_20250525_050526_202505250505GET_EMPLOYEE_JOB.txt
+2025-05-25 05:05:26.702 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】開始執行檔案複製
+2025-05-25 05:05:26.730 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】檔案複製完成，開始驗證
+2025-05-25 05:05:26.751 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】備份檔案大小: 2029 bytes
+2025-05-25 05:05:26.770 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 檔案備份完成
+2025-05-25 05:05:26.770 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 備份檔案: test-files/ftppool/Backup/BOND_MEMMARK_20250525_050526_202505250505GET_EMPLOYEE_JOB.txt
+2025-05-25 05:05:26.771 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 檔案大小: 2029 bytes
+2025-05-25 05:05:26.771 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 備份驗證: 通過
+2025-05-25 05:05:26.832 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.tasklet.TrustBackupFileTasklet [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】TrustBackupFileTasklet.execute() 正常結束
+2025-05-25 05:05:26.848 [http-nio-8089-exec-6] DEBUG cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【DEBUG】TrustBackupFileTasklet 執行完成，結果: FINISHED
+2025-05-25 05:05:26.879 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.job.GetEmployeeJobConfig [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 【建議】作業執行完成，建議定期檢查日誌檔案大小
+2025-05-25 05:05:26.925 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.step.AbstractStep [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - Step: [backupEmployeeFileStep] executed in 409ms
+2025-05-25 05:05:26.957 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - === 作業執行完成 ===
+2025-05-25 05:05:26.957 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 執行代號: 202505250505GET_EMPLOYEE_JOB
+2025-05-25 05:05:26.957 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 作業名稱: GET_EMPLOYEE_JOB
+2025-05-25 05:05:26.957 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 執行狀態: COMPLETED
+2025-05-25 05:05:26.957 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 結束時間: 2025-05-25T05:05:26.957061
+2025-05-25 05:05:26.957 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.listener.base.BaseJobListener [202505250505GET_EMPLOYEE_JOB] [GET_EMPLOYEE_JOB] [backupEmployeeFileStep] - 作業執行成功完成
+2025-05-25 05:05:26.995 [http-nio-8089-exec-6] INFO  org.springframework.batch.core.launch.support.SimpleJobLauncher [] [] [] - Job: [SimpleJob: [name=GET_EMPLOYEE_JOB]] completed with the following parameters: [{'timestamp':'{value=1748120718945, type=class java.lang.Long, identifying=true}'}] and the following status: [COMPLETED] in 7s868ms
+2025-05-25 05:05:27.031 [http-nio-8089-exec-6] INFO  cub.ret.tru.batch.service.BatchJobService [] [] [] - 批次作業已完成: GET_EMPLOYEE_JOB (執行代號: 202505250505GET_EMPLOYEE_JOB)

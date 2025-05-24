@@ -2,13 +2,12 @@ package cub.ret.tru.batch.job;
 
 import cub.ret.tru.batch.listener.base.BaseJobListener;
 import cub.ret.tru.batch.service.BatchLogService;
+import cub.ret.tru.batch.tasklet.DataValidationTasklet;
 import cub.ret.tru.batch.tasklet.GetEmployeeJobTasklet;
 import cub.ret.tru.batch.tasklet.TrustBackupFileTasklet;
-import cub.ret.tru.batch.tasklet.DataValidationTasklet;
 import cub.ret.tru.batch.util.MDCUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -31,42 +30,64 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class GetEmployeeJobConfig {
 
-    /** JobRepository */
+    /**
+     * JobRepository
+     */
     private final JobRepository jobRepository;
 
-    /** PlatformTransactionManager */
+    /**
+     * PlatformTransactionManager
+     */
     private final PlatformTransactionManager transactionManager;
 
-    /** GetEmployeeJobTasklet */
+    /**
+     * GetEmployeeJobTasklet
+     */
     private final GetEmployeeJobTasklet getEmployeeJobTasklet;
 
-    /** TrustBackupFileTasklet */
+    /**
+     * TrustBackupFileTasklet
+     */
     private final TrustBackupFileTasklet trustBackupFileTasklet;
 
-    /** DataValidationTasklet */
+    /**
+     * DataValidationTasklet
+     */
     private final DataValidationTasklet dataValidationTasklet;
 
-    /** BaseJobListener */
+    /**
+     * BaseJobListener
+     */
     private final BaseJobListener baseJobListener;
 
-    /** BatchLogService */
+    /**
+     * BatchLogService
+     */
     private final BatchLogService batchLogService;
 
-    /** 檔案來源路徑 */
+    /**
+     * 檔案來源路徑
+     */
     @Value("${filePath:/naspool/ftppool}")
     private String filePath;
 
-    /** 檔案備份路徑 */
+    /**
+     * 檔案備份路徑
+     */
     @Value("${backupPath:/naspool/ftppool/Backup}")
     private String backupPath;
 
-    /** 行員檔案名稱 */
+    /**
+     * 行員檔案名稱
+     */
     private static final String EMPLOYEE_FILE_NAME = "BOND_MEMMARK.txt";
 
-    /** 隨機數生成器 */
+    /**
+     * 隨機數生成器
+     */
     private final Random random = new Random();
 
-    @Bean
+    @Bean("GET_EMPLOYEE_JOB")
     public Job getEmployeeJob() {
         return new JobBuilder("GET_EMPLOYEE_JOB", jobRepository)
                 .listener(baseJobListener)
@@ -101,8 +122,8 @@ public class GetEmployeeJobConfig {
                     }
 
                     log.debug("【DEBUG】讀取配置參數 - filePath: {}, backupPath: {}", filePath, backupPath);
-                    batchLogService.saveLog(executionId, jobName, "DEBUG", 
-                        String.format("【DEBUG】讀取配置參數 - filePath: %s, backupPath: %s", filePath, backupPath));
+                    batchLogService.saveLog(executionId, jobName, "DEBUG",
+                            String.format("【DEBUG】讀取配置參數 - filePath: %s, backupPath: %s", filePath, backupPath));
 
                     // 隨機產生配置錯誤 (5% 機率)
                     if (random.nextFloat() < 0.05f) {
@@ -114,7 +135,7 @@ public class GetEmployeeJobConfig {
 
                     // 設定原始檔案路徑（不帶日期）
                     String dataFilePath = filePath + File.separator + EMPLOYEE_FILE_NAME;
-                    
+
                     log.debug("【DEBUG】組合檔案路徑: {}", dataFilePath);
                     batchLogService.saveLog(executionId, jobName, "DEBUG", "【DEBUG】組合檔案路徑: " + dataFilePath);
 
@@ -199,11 +220,11 @@ public class GetEmployeeJobConfig {
                         log.error("STEP 2: 行員檔案處理失敗", e);
                         batchLogService.saveLog(executionId, jobName, "ERROR",
                                 "STEP 2: 行員檔案處理失敗: " + e.getMessage());
-                        
+
                         log.debug("【DEBUG】檔案處理步驟異常結束: {}", e.getClass().getSimpleName());
-                        batchLogService.saveLog(executionId, jobName, "DEBUG", 
-                            "【DEBUG】檔案處理步驟異常結束: " + e.getClass().getSimpleName());
-                        
+                        batchLogService.saveLog(executionId, jobName, "DEBUG",
+                                "【DEBUG】檔案處理步驟異常結束: " + e.getClass().getSimpleName());
+
                         throw e;
                     }
                 }, transactionManager)
@@ -257,11 +278,11 @@ public class GetEmployeeJobConfig {
                         log.error("STEP 3: 資料驗證失敗", e);
                         batchLogService.saveLog(executionId, jobName, "ERROR",
                                 "STEP 3: 資料驗證失敗: " + e.getMessage());
-                        
+
                         log.debug("【DEBUG】資料驗證步驟異常結束: {}", e.getClass().getSimpleName());
-                        batchLogService.saveLog(executionId, jobName, "DEBUG", 
-                            "【DEBUG】資料驗證步驟異常結束: " + e.getClass().getSimpleName());
-                        
+                        batchLogService.saveLog(executionId, jobName, "DEBUG",
+                                "【DEBUG】資料驗證步驟異常結束: " + e.getClass().getSimpleName());
+
                         throw e;
                     }
                 }, transactionManager)
@@ -323,11 +344,11 @@ public class GetEmployeeJobConfig {
                         log.error("STEP 4: 檔案備份失敗", e);
                         batchLogService.saveLog(executionId, jobName, "ERROR",
                                 "STEP 4: 檔案備份失敗: " + e.getMessage());
-                        
+
                         log.debug("【DEBUG】檔案備份步驟異常結束: {}", e.getClass().getSimpleName());
-                        batchLogService.saveLog(executionId, jobName, "DEBUG", 
-                            "【DEBUG】檔案備份步驟異常結束: " + e.getClass().getSimpleName());
-                        
+                        batchLogService.saveLog(executionId, jobName, "DEBUG",
+                                "【DEBUG】檔案備份步驟異常結束: " + e.getClass().getSimpleName());
+
                         throw e;
                     }
                 }, transactionManager)
