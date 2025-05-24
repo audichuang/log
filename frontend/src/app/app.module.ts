@@ -28,16 +28,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BatchControlComponent } from './components/batch-control/batch-control.component';
-import { LogViewerComponent } from './components/log-viewer/log-viewer.component';
-import { LogFilterComponent } from './components/log-filter/log-filter.component';
 import { LogDialogComponent } from './components/log-dialog/log-dialog.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         BatchControlComponent,
-        LogViewerComponent,
-        LogFilterComponent,
         LogDialogComponent
     ],
     imports: [
