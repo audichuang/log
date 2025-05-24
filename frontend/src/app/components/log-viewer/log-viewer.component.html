@@ -8,16 +8,49 @@
   <div class="logs-section">
     <div class="logs-header">
       <h2>批次作業日誌</h2>
-      <div class="logs-info">
-        <span class="total-count">共 {{ filteredLogs.length }} 筆記錄</span>
-        <button
-          class="refresh-btn"
-          (click)="loadInitialLogs()"
-          [disabled]="isLoading"
-        >
-          <span *ngIf="isLoading" class="loading-spinner"></span>
-          {{ isLoading ? "載入中..." : "重新整理" }}
-        </button>
+      <div class="logs-controls">
+        <!-- SSE 連線控制 -->
+        <div class="streaming-controls">
+          <div class="connection-status">
+            <span 
+              class="status-indicator" 
+              [ngClass]="{
+                'connected': connectionStatus === 'connected',
+                'disconnected': connectionStatus === 'disconnected',
+                'error': connectionStatus === 'error'
+              }"
+            ></span>
+            <span class="status-text">
+              {{ connectionStatus === 'connected' ? '已連線' : 
+                 connectionStatus === 'error' ? '連線錯誤' : '未連線' }}
+            </span>
+          </div>
+          
+          <button
+            class="streaming-btn"
+            [ngClass]="{ 'active': isStreaming }"
+            (click)="toggleStreaming()"
+            [disabled]="isLoading"
+            title="{{ isStreaming ? '停止即時串流' : '開始即時串流' }}"
+          >
+            <span class="btn-icon">{{ isStreaming ? '⏸️' : '▶️' }}</span>
+            {{ isStreaming ? '停止串流' : '開始串流' }}
+          </button>
+        </div>
+
+        <!-- 日誌資訊和重新整理 -->
+        <div class="logs-info">
+          <span class="total-count">共 {{ filteredLogs.length }} 筆記錄</span>
+          <button
+            class="refresh-btn"
+            (click)="loadInitialLogs()"
+            [disabled]="isLoading || isStreaming"
+            title="{{ isStreaming ? '串流模式下無法手動重新整理' : '重新整理日誌' }}"
+          >
+            <span *ngIf="isLoading" class="loading-spinner"></span>
+            {{ isLoading ? "載入中..." : "重新整理" }}
+          </button>
+        </div>
       </div>
     </div>
 

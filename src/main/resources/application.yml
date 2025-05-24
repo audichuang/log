@@ -30,8 +30,8 @@ spring:
       enabled: false # 防止應用啟動時自動執行批次作業
 
 # 應用程式自定義配置
-filePath: /tmp/batch/input
-backupPath: /tmp/batch/backup
+filePath: test-files/ftppool
+backupPath: test-files/ftppool/Backup
 
 # 日誌相關配置
 logging:

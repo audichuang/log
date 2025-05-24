@@ -50,22 +50,16 @@ export class BatchService {
      * 根據執行代號查詢日誌
      */
     getLogsByExecutionId(executionId: string): Observable<BatchLog[]> {
-        // 暫時返回模擬日誌數據
-        const mockLogs: BatchLog[] = this.generateMockLogs(executionId);
-        return of(mockLogs);
         // 真實 API 調用：
-        // return this.http.get<BatchLog[]>(`${this.apiUrl}/batch/logs/execution/${executionId}`);
+        return this.http.get<BatchLog[]>(`${this.apiUrl}/batch/logs/execution/${executionId}`);
     }
 
     /**
      * 根據作業名稱查詢日誌
      */
     getLogsByJobName(jobName: string): Observable<BatchLog[]> {
-        // 暫時返回模擬日誌數據
-        const mockLogs: BatchLog[] = this.generateMockLogs(`exec-${Date.now()}`);
-        return of(mockLogs);
         // 真實 API 調用：
-        // return this.http.get<BatchLog[]>(`${this.apiUrl}/batch/logs/job/${jobName}`);
+        return this.http.get<BatchLog[]>(`${this.apiUrl}/batch/logs/job/${jobName}`);
     }
 
     /**
@@ -79,14 +73,11 @@ export class BatchService {
      * 根據時間範圍查詢日誌
      */
     getLogsByTimeRange(startTime: string, endTime: string): Observable<BatchLog[]> {
-        // 暫時返回模擬日誌數據
-        const mockLogs: BatchLog[] = this.generateMockLogs(`exec-${Date.now()}`);
-        return of(mockLogs);
         // 真實 API 調用：
-        // const params = new HttpParams()
-        //     .set('startTime', startTime)
-        //     .set('endTime', endTime);
-        // return this.http.get<BatchLog[]>(`${this.apiUrl}/batch/logs/time-range`, { params });
+        const params = new HttpParams()
+            .set('startTime', startTime)
+            .set('endTime', endTime);
+        return this.http.get<BatchLog[]>(`${this.apiUrl}/batch/logs/time-range`, { params });
     }
 
     /**

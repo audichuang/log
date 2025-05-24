@@ -1,18 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BatchService } from '../../services/batch.service';
 import { BatchLog, LogFilter } from '../../models/batch-log.model';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-log-viewer',
     templateUrl: './log-viewer.component.html',
     styleUrls: ['./log-viewer.component.scss']
 })
-export class LogViewerComponent implements OnInit {
+export class LogViewerComponent implements OnInit, OnDestroy {
     logs: BatchLog[] = [];
     filteredLogs: BatchLog[] = [];
     isLoading = false;
     error = '';
     currentFilter: LogFilter = {};
+
+    // SSE 連線相關
+    private sseSubscription?: Subscription;
+    private connectionStatusSubscription?: Subscription;
+    isStreaming = false;
+    connectionStatus = 'disconnected';
 
     // 分頁相關
     currentPage = 1;
@@ -30,6 +37,108 @@ export class LogViewerComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadInitialLogs();
+        this.subscribeToConnectionStatus();
+    }
+
+    ngOnDestroy(): void {
+        // 組件銷毀時主動斷開SSE連線
+        this.disconnectStream();
+        
+        // 取消所有訂閱
+        if (this.sseSubscription) {
+            this.sseSubscription.unsubscribe();
+        }
+        if (this.connectionStatusSubscription) {
+            this.connectionStatusSubscription.unsubscribe();
+        }
+        
+        console.log('LogViewerComponent 已銷毀，SSE連線已清理');
+    }
+
+    /**
+     * 訂閱連線狀態變更
+     */
+    private subscribeToConnectionStatus(): void {
+        this.connectionStatusSubscription = this.batchService.getConnectionStatus().subscribe(
+            status => {
+                this.connectionStatus = status;
+                console.log('SSE連線狀態變更:', status);
+            }
+        );
+    }
+
+    /**
+     * 開始串流日誌
+     */
+    startStreaming(): void {
+        if (this.isStreaming) {
+            return;
+        }
+
+        this.isStreaming = true;
+        this.sseSubscription = this.batchService.connectToLogStream(this.currentFilter).subscribe({
+            next: (logs) => {
+                console.log('收到SSE日誌數據:', logs.length, '筆');
+                // 合併新日誌與現有日誌
+                this.mergeNewLogs(logs);
+                this.applyFilter();
+            },
+            error: (error) => {
+                console.error('SSE串流錯誤:', error);
+                this.error = `串流連線錯誤: ${error.message}`;
+                this.isStreaming = false;
+            }
+        });
+    }
+
+    /**
+     * 停止串流日誌
+     */
+    stopStreaming(): void {
+        this.disconnectStream();
+    }
+
+    /**
+     * 斷開SSE連線
+     */
+    private disconnectStream(): void {
+        if (this.sseSubscription) {
+            this.sseSubscription.unsubscribe();
+            this.sseSubscription = undefined;
+        }
+        
+        this.batchService.disconnectLogStream();
+        this.isStreaming = false;
+        console.log('已停止日誌串流');
+    }
+
+    /**
+     * 合併新的日誌資料
+     */
+    private mergeNewLogs(newLogs: BatchLog[]): void {
+        if (!newLogs || newLogs.length === 0) {
+            return;
+        }
+
+        // 避免重複的日誌
+        const existingIds = new Set(this.logs.map(log => log.id));
+        const uniqueNewLogs = newLogs.filter(log => !existingIds.has(log.id));
+        
+        if (uniqueNewLogs.length > 0) {
+            this.logs = [...this.logs, ...uniqueNewLogs];
+            console.log('合併了', uniqueNewLogs.length, '筆新日誌');
+        }
+    }
+
+    /**
+     * 切換串流狀態
+     */
+    toggleStreaming(): void {
+        if (this.isStreaming) {
+            this.stopStreaming();
+        } else {
+            this.startStreaming();
+        }
     }
 
     loadInitialLogs(): void {
