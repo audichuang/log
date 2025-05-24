@@ -1,0 +1,26 @@
+<div class="app-container">
+  <header class="header">
+    <div class="header-content">
+      <h1 class="title">{{ title }}</h1>
+      <nav class="navigation">
+        <a
+          routerLink="/batch-control"
+          routerLinkActive="active"
+          class="nav-link"
+          >批次控制</a
+        >
+        <a routerLink="/log-viewer" routerLinkActive="active" class="nav-link"
+          >日誌查看</a
+        >
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2024 批次作業日誌管理系統</p>
+  </footer>
+</div>

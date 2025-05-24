@@ -1,0 +1,155 @@
+<div class="log-dialog-container">
+  <!-- 彈窗標題 -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon>description</mat-icon>
+      {{ data.job.displayName }} - 執行日誌
+    </h2>
+    <button mat-icon-button (click)="closeDialog()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- 過濾器區域 -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="level-select">
+        <mat-label>日誌級別</mat-label>
+        <mat-select
+          [(value)]="selectedLogLevel"
+          (selectionChange)="onLogLevelChange()"
+        >
+          <mat-option *ngFor="let level of logLevels" [value]="level">
+            {{ level === "ALL" ? "全部級別" : level }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="search-input">
+        <mat-label>搜尋關鍵字</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchKeyword"
+          (input)="onKeywordChange()"
+          placeholder="搜尋日誌內容..."
+        />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="refreshLogs()"
+        [disabled]="isLoading"
+        matTooltip="重新載入日誌"
+      >
+        <mat-icon>refresh</mat-icon>
+        重新載入
+      </button>
+    </div>
+
+    <!-- 作業資訊 -->
+    <div class="job-info">
+      <div class="chip-container">
+        <mat-chip>
+          <mat-icon>category</mat-icon>
+          {{ data.job.category }}
+        </mat-chip>
+        <mat-chip [class]="'status-' + data.job.status.toLowerCase()">
+          <mat-icon>{{ getStatusIcon(data.job.status) }}</mat-icon>
+          {{ getStatusText(data.job.status) }}
+        </mat-chip>
+        <mat-chip *ngIf="data.executionId">
+          <mat-icon>play_circle</mat-icon>
+          {{ data.executionId }}
+        </mat-chip>
+      </div>
+    </div>
+  </div>
+
+  <!-- 錯誤訊息 -->
+  <div *ngIf="error" class="error-message">
+    <mat-icon>error</mat-icon>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- 載入中指示器 -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner [diameter]="40"></mat-spinner>
+    <p>載入日誌中...</p>
+  </div>
+
+  <!-- 日誌表格 -->
+  <div class="table-container" *ngIf="!isLoading">
+    <table mat-table [dataSource]="dataSource" matSort class="logs-table">
+      <!-- 時間欄位 -->
+      <ng-container matColumnDef="logTime">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>時間</th>
+        <td mat-cell *matCellDef="let log" class="time-cell">
+          {{ formatDateTime(log.logTime) }}
+        </td>
+      </ng-container>
+
+      <!-- 級別欄位 -->
+      <ng-container matColumnDef="logLevel">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>級別</th>
+        <td mat-cell *matCellDef="let log">
+          <mat-chip [class]="getLogLevelClass(log.logLevel)" class="level-chip">
+            {{ log.logLevel }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- 訊息欄位 -->
+      <ng-container matColumnDef="message">
+        <th mat-header-cell *matHeaderCellDef>訊息</th>
+        <td mat-cell *matCellDef="let log" class="message-cell">
+          <div class="message-content">
+            {{ log.message }}
+            <div *ngIf="log.exceptionStack" class="exception-indicator">
+              <mat-icon
+                class="exception-icon"
+                matTooltip="點擊查看例外堆疊"
+                (click)="showExceptionStack(log.exceptionStack)"
+              >
+                error_outline
+              </mat-icon>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- 執行緒欄位 -->
+      <ng-container matColumnDef="threadName">
+        <th mat-header-cell *matHeaderCellDef>執行緒</th>
+        <td mat-cell *matCellDef="let log" class="thread-cell">
+          {{ log.threadName || "-" }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <!-- 分頁器 -->
+    <mat-paginator
+      [pageSizeOptions]="[10, 25, 50, 100]"
+      [pageSize]="25"
+      [showFirstLastButtons]="true"
+      aria-label="選擇日誌頁面"
+    >
+    </mat-paginator>
+  </div>
+
+  <!-- 無資料顯示 -->
+  <div *ngIf="!isLoading && dataSource.data.length === 0" class="no-data">
+    <mat-icon>info</mat-icon>
+    <h3>沒有找到日誌記錄</h3>
+    <p>請調整過濾條件或檢查作業執行狀態</p>
+  </div>
+
+  <!-- 彈窗動作按鈕 -->
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="closeDialog()">關閉</button>
+  </div>
+</div>

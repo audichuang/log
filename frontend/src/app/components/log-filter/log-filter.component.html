@@ -1,0 +1,122 @@
+<div class="filter-container">
+  <div class="filter-card">
+    <div class="filter-header">
+      <h3>日誌過濾器</h3>
+      <button class="reset-btn" (click)="resetFilter()">重置</button>
+    </div>
+
+    <form [formGroup]="filterForm" class="filter-form">
+      <!-- 時間範圍 -->
+      <div class="filter-section">
+        <h4>時間範圍</h4>
+
+        <!-- 快速時間選擇按鈕 -->
+        <div class="quick-time-buttons">
+          <button
+            type="button"
+            class="quick-btn"
+            (click)="setQuickTimeRange(1)"
+          >
+            最近1小時
+          </button>
+          <button
+            type="button"
+            class="quick-btn"
+            (click)="setQuickTimeRange(6)"
+          >
+            最近6小時
+          </button>
+          <button
+            type="button"
+            class="quick-btn"
+            (click)="setQuickTimeRange(24)"
+          >
+            最近24小時
+          </button>
+          <button
+            type="button"
+            class="quick-btn"
+            (click)="setQuickTimeRange(168)"
+          >
+            最近7天
+          </button>
+        </div>
+
+        <!-- 自定義時間範圍 -->
+        <div class="time-range">
+          <div class="form-group">
+            <label for="startTime">開始時間</label>
+            <input
+              type="datetime-local"
+              id="startTime"
+              formControlName="startTime"
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="endTime">結束時間</label>
+            <input
+              type="datetime-local"
+              id="endTime"
+              formControlName="endTime"
+              class="form-control"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 日誌級別 -->
+      <div class="filter-section">
+        <h4>日誌級別</h4>
+        <div class="form-group">
+          <select formControlName="logLevel" class="form-control">
+            <option *ngFor="let level of logLevels" [value]="level">
+              {{ level === "ALL" ? "全部級別" : level }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 關鍵字搜尋 -->
+      <div class="filter-section">
+        <h4>關鍵字搜尋</h4>
+        <div class="form-group">
+          <input
+            type="text"
+            formControlName="keyword"
+            placeholder="搜尋日誌內容..."
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <!-- 進階過濾 -->
+      <div class="filter-section">
+        <h4>進階過濾</h4>
+
+        <div class="form-group">
+          <label for="executionId">執行代號</label>
+          <input
+            type="text"
+            id="executionId"
+            formControlName="executionId"
+            placeholder="輸入執行代號..."
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="jobName">作業名稱</label>
+          <input
+            type="text"
+            id="jobName"
+            formControlName="jobName"
+            placeholder="輸入作業名稱..."
+            class="form-control"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

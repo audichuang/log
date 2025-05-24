@@ -1,0 +1,177 @@
+<div class="log-viewer-container">
+  <!-- 過濾器區域 -->
+  <div class="filter-section">
+    <app-log-filter (filterChange)="onFilterChange($event)"></app-log-filter>
+  </div>
+
+  <!-- 日誌內容區域 -->
+  <div class="logs-section">
+    <div class="logs-header">
+      <h2>批次作業日誌</h2>
+      <div class="logs-info">
+        <span class="total-count">共 {{ filteredLogs.length }} 筆記錄</span>
+        <button
+          class="refresh-btn"
+          (click)="loadInitialLogs()"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="isLoading" class="loading-spinner"></span>
+          {{ isLoading ? "載入中..." : "重新整理" }}
+        </button>
+      </div>
+    </div>
+
+    <!-- 錯誤訊息 -->
+    <div *ngIf="error" class="error-message">
+      <span>{{ error }}</span>
+      <button class="close-btn" (click)="clearError()">&times;</button>
+    </div>
+
+    <!-- 載入中指示器 -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner large"></div>
+      <p>載入日誌中...</p>
+    </div>
+
+    <!-- 日誌表格 -->
+    <div
+      *ngIf="!isLoading && filteredLogs.length > 0"
+      class="logs-table-container"
+    >
+      <table class="logs-table">
+        <thead>
+          <tr>
+            <th (click)="sort('logTime')" class="sortable">
+              時間
+              <span
+                class="sort-indicator"
+                [ngClass]="{
+                  active: sortField === 'logTime',
+                  desc: sortDirection === 'desc'
+                }"
+              >
+                ↕
+              </span>
+            </th>
+            <th (click)="sort('logLevel')" class="sortable">
+              級別
+              <span
+                class="sort-indicator"
+                [ngClass]="{
+                  active: sortField === 'logLevel',
+                  desc: sortDirection === 'desc'
+                }"
+              >
+                ↕
+              </span>
+            </th>
+            <th>執行代號</th>
+            <th>作業名稱</th>
+            <th>步驟名稱</th>
+            <th (click)="sort('message')" class="sortable">
+              訊息
+              <span
+                class="sort-indicator"
+                [ngClass]="{
+                  active: sortField === 'message',
+                  desc: sortDirection === 'desc'
+                }"
+              >
+                ↕
+              </span>
+            </th>
+            <th>執行緒</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of paginatedLogs" class="log-row">
+            <td class="log-time">{{ formatDateTime(log.logTime) }}</td>
+            <td class="log-level">
+              <span
+                class="level-badge"
+                [ngClass]="getLogLevelClass(log.logLevel)"
+              >
+                {{ log.logLevel }}
+              </span>
+            </td>
+            <td class="execution-id">{{ log.executionId }}</td>
+            <td class="job-name">{{ log.jobName || "-" }}</td>
+            <td class="step-name">{{ log.stepName || "-" }}</td>
+            <td class="log-message">
+              <div class="message-content">
+                {{ log.message }}
+                <div *ngIf="log.exceptionStack" class="exception-stack">
+                  <details>
+                    <summary>例外堆疊</summary>
+                    <pre>{{ log.exceptionStack }}</pre>
+                  </details>
+                </div>
+              </div>
+            </td>
+            <td class="thread-name">{{ log.threadName || "-" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 無資料訊息 -->
+    <div *ngIf="!isLoading && filteredLogs.length === 0" class="no-data">
+      <div class="no-data-icon">📋</div>
+      <h3>沒有找到日誌記錄</h3>
+      <p>請調整過濾條件或檢查時間範圍</p>
+    </div>
+
+    <!-- 分頁控制 -->
+    <div *ngIf="!isLoading && filteredLogs.length > 0" class="pagination">
+      <div class="pagination-info">
+        第 {{ currentPage }} 頁，共 {{ totalPages }} 頁 (顯示
+        {{ (currentPage - 1) * pageSize + 1 }} -
+        {{ Math.min(currentPage * pageSize, filteredLogs.length) }} 筆， 總共
+        {{ filteredLogs.length }} 筆)
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="page-btn"
+          (click)="goToPage(1)"
+          [disabled]="currentPage === 1"
+        >
+          首頁
+        </button>
+        <button
+          class="page-btn"
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+        >
+          上一頁
+        </button>
+
+        <span class="page-numbers">
+          <button
+            *ngFor="let i of getPageNumbers()"
+            class="page-number"
+            [ngClass]="{ active: currentPage === i }"
+            (click)="goToPage(i)"
+          >
+            {{ i }}
+          </button>
+        </span>
+
+        <button
+          class="page-btn"
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+        >
+          下一頁
+        </button>
+        <button
+          class="page-btn"
+          (click)="goToPage(totalPages)"
+          [disabled]="currentPage === totalPages"
+        >
+          末頁
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
