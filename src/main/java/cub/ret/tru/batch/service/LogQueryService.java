@@ -27,6 +27,12 @@ public class LogQueryService {
         // 參數驗證和預處理
         criteria = validateAndPreprocessCriteria(criteria);
 
+        // ID增量查詢優先處理
+        if (criteria.getLastId() != null) {
+            log.debug("使用ID增量查詢，lastId: {}", criteria.getLastId());
+            return executeIncrementalQuery(criteria);
+        }
+
         // 如果是簡單的執行ID查詢，直接使用方法查詢
         if (isSimpleExecutionIdQuery(criteria)) {
             log.debug("使用簡單執行ID查詢");
@@ -53,6 +59,28 @@ public class LogQueryService {
 
         log.debug("查詢完成，返回 {} 筆記錄", results.size());
         return results;
+    }
+
+    /**
+     * 執行ID增量查詢
+     */
+    private List<BatchLogEntity> executeIncrementalQuery(LogQueryCriteria criteria) {
+        Long lastId = criteria.getLastId();
+        int limit = criteria.getLimit();
+
+        // 根據不同條件選擇不同的增量查詢方法
+        if (StringUtils.hasText(criteria.getExecutionId())) {
+            log.debug("執行ID增量查詢: lastId={}, executionId={}, limit={}", 
+                     lastId, criteria.getExecutionId(), limit);
+            return repository.findIncrementalLogsByIdAndExecutionId(lastId, criteria.getExecutionId(), limit);
+        } else if (StringUtils.hasText(criteria.getJobName())) {
+            log.debug("作業名稱增量查詢: lastId={}, jobName={}, limit={}", 
+                     lastId, criteria.getJobName(), limit);
+            return repository.findIncrementalLogsByIdAndJobName(lastId, criteria.getJobName(), limit);
+        } else {
+            log.debug("通用增量查詢: lastId={}, limit={}", lastId, limit);
+            return repository.findIncrementalLogsById(lastId, limit);
+        }
     }
 
     private boolean isSimpleExecutionIdQuery(LogQueryCriteria criteria) {

@@ -12,13 +12,29 @@
 
     <!-- 過濾器區域 -->
     <div class="filter-section">
-        <!-- 連接狀態顯示 -->
-        <div class="connection-status-section">
+        <!-- 連接狀態和模式顯示 -->
+        <div class="status-and-mode-section">
             <div class="status-display" [class]="'status-' + connectionStatus">
-                <mat-icon>{{ connectionStatus === 'connected' ? 'wifi' : connectionStatus === 'error' ? 'wifi_off' : 'wifi_off' }}</mat-icon>
-                <span class="status-text">
-          {{ connectionStatus === 'connected' ? '✅ 已連線' : connectionStatus === 'error' ? '❌ 連線錯誤' : '⏸️ 未連線' }}
-        </span>
+                <mat-icon>{{ getConnectionStatusIcon() }}</mat-icon>
+                <span class="status-text">{{ getConnectionStatusText() }}</span>
+            </div>
+
+            <!-- 🔥 新增：模式切換控制 -->
+            <div class="mode-controls">
+                <div class="mode-indicator" [class.active]="isRealTimeMode">
+                    <mat-icon>{{ isRealTimeMode ? 'wifi' : 'history' }}</mat-icon>
+                    <span>{{ isRealTimeMode ? '實時模式' : '歷史模式' }}</span>
+                </div>
+
+                <button
+                        mat-stroked-button
+                        color="primary"
+                        (click)="switchToRealTimeMode()"
+                        [disabled]="isRealTimeMode"
+                        class="mode-switch-btn">
+                    <mat-icon>wifi</mat-icon>
+                    切換實時
+                </button>
             </div>
         </div>
 
@@ -27,44 +43,37 @@
             <div class="log-level-section">
                 <h4>📊 日誌級別</h4>
 
-                <!-- 多選下拉式選單 -->
                 <mat-form-field appearance="outline" class="log-level-select">
                     <mat-label>選擇日誌級別</mat-label>
                     <mat-select
                             multiple
                             [(value)]="selectedLogLevels"
-                            (selectionChange)="onLogLevelsSelectionChange($event.value)"
-                    >
+                            (selectionChange)="onLogLevelsSelectionChange($event.value)">
                         <mat-select-trigger>
                             <span *ngIf="selectedLogLevels.length === 0">請選擇日誌級別...</span>
                             <span *ngIf="selectedLogLevels.length === 1">{{ selectedLogLevels[0] }}</span>
                             <span *ngIf="selectedLogLevels.length > 1">
-                已選擇 {{ selectedLogLevels.length }} 個級別
-              </span>
+                                已選擇 {{ selectedLogLevels.length }} 個級別
+                            </span>
                         </mat-select-trigger>
 
-                        <!-- 全選/取消全選選項 -->
                         <mat-option
                                 class="toggle-all-option"
-                                (click)="toggleAllLogLevels(); $event.stopPropagation()"
-                        >
-              <span class="toggle-all-text">
-                {{ selectedLogLevels.length === logLevels.length ? '🔄 取消全選' : '✅ 全選' }}
-              </span>
+                                (click)="toggleAllLogLevels(); $event.stopPropagation()">
+                            <span class="toggle-all-text">
+                                {{ selectedLogLevels.length === logLevels.length ? '🔄 取消全選' : '✅ 全選' }}
+                            </span>
                         </mat-option>
 
                         <mat-divider></mat-divider>
 
-                        <!-- 日誌級別選項 -->
                         <mat-option
                                 *ngFor="let level of logLevels"
                                 [value]="level.value"
-                                class="log-level-option"
-                        >
-              <span
-                      class="log-level-indicator"
-                      [style.background-color]="level.color"
-              ></span>
+                                class="log-level-option">
+                            <span
+                                    class="log-level-indicator"
+                                    [style.background-color]="level.color"></span>
                             <span class="log-level-label">{{ level.label }}</span>
                         </mat-option>
                     </mat-select>
@@ -81,8 +90,7 @@
                                     (removed)="removeLogLevel(level)"
                                     [style.background-color]="getLogLevelColor(level)"
                                     [style.color]="'white'"
-                                    class="level-chip"
-                            >
+                                    class="level-chip">
                                 {{ level }}
                                 <mat-icon matChipRemove>cancel</mat-icon>
                             </mat-chip>
@@ -98,14 +106,13 @@
                     <mat-select
                             [(value)]="selectedExecutionId"
                             (selectionChange)="onExecutionIdChange()"
-                            [disabled]="isLoadingExecutions"
-                    >
+                            [disabled]="isLoadingExecutions">
                         <mat-option value="ALL">全部執行</mat-option>
                         <mat-option
                                 *ngFor="let execution of availableExecutions"
                                 [value]="execution.executionId"
-                                class="execution-option"
-                        >{{ execution.executionId }}
+                                class="execution-option">
+                            {{ execution.executionId }}
                         </mat-option>
                     </mat-select>
                     <mat-hint *ngIf="isLoadingExecutions">載入執行記錄中...</mat-hint>
@@ -117,22 +124,44 @@
                             matInput
                             [(ngModel)]="searchKeyword"
                             (input)="onKeywordChange()"
-                            placeholder="搜尋日誌內容..."
-                    />
+                            placeholder="搜尋日誌內容..."/>
                     <mat-icon matSuffix>search</mat-icon>
                 </mat-form-field>
 
-                <button
-                        mat-raised-button
-                        color="primary"
-                        (click)="refreshLogs()"
-                        [disabled]="isLoading"
-                        matTooltip="重新載入日誌"
-                        class="refresh-btn"
-                >
-                    <mat-icon>refresh</mat-icon>
-                    重新載入
-                </button>
+                <!-- 🔥 更新：按鈕組 -->
+                <div class="action-buttons">
+                    <button
+                            mat-raised-button
+                            color="primary"
+                            (click)="refreshLogs()"
+                            [disabled]="isLoading"
+                            matTooltip="重新載入日誌"
+                            class="action-btn">
+                        <mat-icon>refresh</mat-icon>
+                        重新載入
+                    </button>
+
+                    <button
+                            mat-stroked-button
+                            color="accent"
+                            (click)="togglePolling()"
+                            [disabled]="isLoading"
+                            matTooltip="{{ isPollingConnected() ? '暫停輪詢' : '恢復輪詢' }}"
+                            class="action-btn">
+                        <mat-icon>{{ isPollingConnected() ? 'pause' : 'play_arrow' }}</mat-icon>
+                        {{ isPollingConnected() ? '暫停' : '恢復' }}
+                    </button>
+
+                    <button
+                            mat-button
+                            color="warn"
+                            (click)="clearLogs()"
+                            matTooltip="清空日誌顯示"
+                            class="action-btn">
+                        <mat-icon>clear</mat-icon>
+                        清空
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -151,6 +180,11 @@
                     <mat-icon>work</mat-icon>
                     {{ data.job.name }}
                 </mat-chip>
+                <!-- 🔥 新增：統計資訊 -->
+                <mat-chip class="stats-chip">
+                    <mat-icon>assessment</mat-icon>
+                    共 {{ dataSource.data.length }} 條
+                </mat-chip>
             </div>
         </div>
     </div>
@@ -165,6 +199,12 @@
     <div *ngIf="isLoading" class="loading-container">
         <mat-spinner [diameter]="40"></mat-spinner>
         <p>載入日誌中...</p>
+    </div>
+
+    <!-- 🔥 新增：分頁提示 -->
+    <div *ngIf="!isRealTimeMode && !isLoading" class="pagination-notice">
+        <mat-icon>info</mat-icon>
+        <span>您目前在歷史模式中，不會自動更新。點擊「切換實時」回到即時更新模式。</span>
     </div>
 
     <!-- 日誌表格 -->
@@ -206,8 +246,7 @@
                             <mat-icon
                                     class="exception-icon"
                                     matTooltip="點擊查看例外堆疊"
-                                    (click)="showExceptionStack(log.exceptionStack)"
-                            >
+                                    (click)="showExceptionStack(log.exceptionStack)">
                                 error_outline
                             </mat-icon>
                         </div>
@@ -227,13 +266,14 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
 
-        <!-- 分頁器 -->
+        <!-- 🔥 更新：分頁器（添加更多選項） -->
         <mat-paginator
-                [pageSizeOptions]="[10, 25, 50, 100]"
+                [pageSizeOptions]="[10, 25, 50, 100, 200]"
                 [pageSize]="25"
                 [showFirstLastButtons]="true"
+                [hidePageSize]="false"
                 aria-label="選擇日誌頁面"
-        >
+                class="custom-paginator">
         </mat-paginator>
     </div>
 
@@ -242,10 +282,22 @@
         <mat-icon>info</mat-icon>
         <h3>沒有找到日誌記錄</h3>
         <p>請調整過濾條件或檢查作業執行狀態</p>
+        <button mat-raised-button color="primary" (click)="refreshLogs()">
+            <mat-icon>refresh</mat-icon>
+            重新載入
+        </button>
     </div>
 
     <!-- 彈窗動作按鈕 -->
     <div mat-dialog-actions class="dialog-actions">
+        <div class="action-info">
+            <!-- 🔥 新增：狀態資訊 -->
+            <span class="status-info">
+                {{ isRealTimeMode ? '實時模式' : '歷史模式' }} |
+                {{ pollingStatus.logCount || 0 }} 條日誌 |
+                {{ connectionStatus === 'connected' ? '已連線' : '未連線' }}
+            </span>
+        </div>
         <button mat-button (click)="closeDialog()">關閉</button>
     </div>
 </div>

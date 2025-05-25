@@ -23,6 +23,7 @@ public class LogQueryCriteria {
     private Integer limit;
     private String sortDirection; // ASC, DESC
     private LogQueryType queryType;
+    private Long lastId; // 用於增量查詢的最後一個日誌ID
 
     // 判斷是否為空查詢條件
     public boolean isEmpty() {

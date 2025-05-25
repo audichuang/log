@@ -25,6 +25,7 @@ export interface LogQueryCriteria {
     limit?: number;
     sortDirection?: 'ASC' | 'DESC';
     queryType?: 'REAL_TIME' | 'HISTORICAL' | 'SEARCH';
+    lastId?: number;  // 用於ID增量查詢的最後日誌ID
 }
 
 // 保留舊的 LogFilter 以向後兼容，但標記為 deprecated

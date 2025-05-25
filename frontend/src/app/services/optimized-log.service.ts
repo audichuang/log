@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { 
-    BatchLog, 
-    LogQueryCriteria, 
-    LogStatsResponse, 
+import {
+    BatchLog,
+    LogQueryCriteria,
+    LogStatsResponse,
     SseConnectionStatus,
-    LogFilterOptions 
+    LogFilterOptions
 } from '../models/batch-log.model';
 
 @Injectable({
@@ -15,10 +15,15 @@ import {
 })
 export class OptimizedLogService {
     private readonly apiUrl = environment.apiUrl;
-    private eventSource: EventSource | null = null;
-    private connectionId: string | null = null;
-    private logsSubject = new Subject<BatchLog[]>();
+    private readonly MAX_LOGS_IN_MEMORY = 500; // 最大內存中的日誌數
+
+    private pollingInterval: any = null;
+    private logsSubject = new BehaviorSubject<BatchLog[]>([]); // 🔥 改用 BehaviorSubject，保持狀態
     private connectionStatus = new BehaviorSubject<string>('disconnected');
+
+    private lastLogId: number | undefined = undefined; // 🔥 改名為 lastLogId，但發送時用 lastId
+    private currentCriteria: LogQueryCriteria | null = null;
+    private accumulatedLogs: BatchLog[] = []; // 🔥 用於累積日誌
 
     constructor(private http: HttpClient) { }
 
@@ -27,7 +32,7 @@ export class OptimizedLogService {
      */
     queryLogs(criteria: LogQueryCriteria): Observable<BatchLog[]> {
         let params = new HttpParams();
-        
+
         if (criteria.executionId) params = params.set('executionId', criteria.executionId);
         if (criteria.jobName) params = params.set('jobName', criteria.jobName);
         if (criteria.stepName) params = params.set('stepName', criteria.stepName);
@@ -43,6 +48,9 @@ export class OptimizedLogService {
         if (criteria.sortDirection) params = params.set('sortDirection', criteria.sortDirection);
         if (criteria.queryType) params = params.set('queryType', criteria.queryType);
 
+        // 🔥 重要：前端 lastLogId -> 後端 lastId
+        if (criteria.lastId) params = params.set('lastId', criteria.lastId.toString());
+
         return this.http.get<BatchLog[]>(`${this.apiUrl}/batch/optimized-logs`, { params });
     }
 
@@ -54,184 +62,228 @@ export class OptimizedLogService {
     }
 
     /**
-     * 建立 SSE 實時串流連接
+     * 開始輪詢日誌 - 改進版本
      */
-    streamLogs(criteria?: Partial<LogQueryCriteria>): Observable<BatchLog[]> {
-        // 確保完全斷開舊連接
-        this.disconnectLogStream();
-        
-        let params = new URLSearchParams();
-        if (criteria) {
-            if (criteria.executionId) params.append('executionId', criteria.executionId);
-            if (criteria.jobName) params.append('jobName', criteria.jobName);
-            if (criteria.logLevels && criteria.logLevels.length > 0) {
-                // 支援多選日誌級別：每個級別作為單獨的參數
-                criteria.logLevels.forEach(level => {
-                    params.append('logLevels', level);
-                });
+    startPollingLogs(criteria?: Partial<LogQueryCriteria>): Observable<BatchLog[]> {
+        console.log('🚀 開始輪詢日誌，條件:', criteria);
+
+        // 停止現有輪詢並重置狀態
+        this.stopPollingLogs();
+        this.resetPollingState();
+
+        // 建立查詢條件
+        this.currentCriteria = this.buildFullCriteria(criteria);
+        this.connectionStatus.next('connecting');
+
+        // 立即執行首次查詢
+        this.executeInitialQuery();
+
+        // 開始定時輪詢增量數據
+        this.startIncrementalPolling();
+
+        return this.logsSubject.asObservable();
+    }
+
+    /**
+     * 重置輪詢狀態
+     */
+    private resetPollingState(): void {
+        this.lastLogId = undefined;
+        this.accumulatedLogs = [];
+        this.logsSubject.next([]);
+    }
+
+    /**
+     * 執行首次查詢
+     */
+    private executeInitialQuery(): void {
+        if (!this.currentCriteria) return;
+
+        const initialCriteria: LogQueryCriteria = {
+            ...this.currentCriteria,
+            sortDirection: 'DESC', // 首次查詢用降序，獲取最新日誌
+            limit: 100
+        };
+
+        console.log('📥 執行首次查詢:', initialCriteria);
+
+        this.queryLogsPost(initialCriteria).subscribe({
+            next: (logs) => {
+                if (logs && logs.length > 0) {
+                    console.log('✅ 首次查詢成功，獲取', logs.length, '條日誌');
+
+                    // 🔥 將日誌按時間順序排列（舊到新）以便後續累積
+                    this.accumulatedLogs = [...logs].reverse();
+
+                    // 設置最後的日誌ID
+                    const maxId = Math.max(...logs.map(log => log.id || 0));
+                    this.lastLogId = maxId;
+
+                    console.log('📝 設置 lastLogId:', this.lastLogId);
+
+                    // 🔥 發送初始日誌（保持降序顯示，最新在上）
+                    this.logsSubject.next([...logs]);
+                    this.connectionStatus.next('connected');
+                } else {
+                    console.log('📭 首次查詢無日誌');
+                    this.connectionStatus.next('connected');
+                }
+            },
+            error: (error) => {
+                console.error('❌ 首次查詢失敗:', error);
+                this.connectionStatus.next('error');
             }
-            if (criteria.keyword) params.append('keyword', criteria.keyword);
-            if (criteria.startTime) params.append('startTime', criteria.startTime);
-            if (criteria.endTime) params.append('endTime', criteria.endTime);
-        }
-
-        const url = `${this.apiUrl}/batch/optimized-logs/stream?${params.toString()}`;
-        console.log('建立 SSE 連接到:', url);
-        
-        // 等待一小段時間確保舊連接完全關閉
-        return new Observable<BatchLog[]>(observer => {
-            setTimeout(() => {
-                this.eventSource = new EventSource(url);
-                
-                this.eventSource.onopen = () => {
-                    console.log('SSE 連接已建立:', url);
-                    this.connectionStatus.next('connected');
-                    
-                    // 從URL中提取連接ID（後端生成的UUID）
-                    // 注意：我們需要從SSE響應中獲取實際的connectionId
-                };
-
-                this.eventSource.addEventListener('connected', (event: any) => {
-                    console.log('SSE 連接確認:', event.data);
-                    this.connectionStatus.next('connected');
-                    
-                    // 嘗試從連接確認消息中提取連接ID
-                    try {
-                        // 如果後端返回JSON格式的連接信息
-                        const connectionInfo = JSON.parse(event.data);
-                        if (connectionInfo.connectionId) {
-                            this.connectionId = connectionInfo.connectionId;
-                            console.log('已獲取連接ID:', this.connectionId);
-                        }
-                    } catch (e) {
-                        // 如果不是JSON，暫時使用URL作為標識
-                        console.log('連接已建立，暫時無法獲取連接ID');
-                    }
-                });
-
-                this.eventSource.addEventListener('logs', (event: any) => {
-                    try {
-                        const logs = JSON.parse(event.data);
-                        if (Array.isArray(logs)) {
-                            observer.next(logs);
-                        }
-                    } catch (error) {
-                        console.error('解析日誌數據失敗:', error);
-                        observer.error(error);
-                    }
-                });
-
-                // 處理心跳事件
-                this.eventSource.addEventListener('heartbeat', (event: any) => {
-                    try {
-                        const heartbeat = JSON.parse(event.data);
-                        console.log('收到心跳:', heartbeat.timestamp);
-                        // 更新連接狀態為活躍
-                        this.connectionStatus.next('connected');
-                    } catch (error) {
-                        console.warn('解析心跳數據失敗:', error);
-                    }
-                });
-
-                this.eventSource.onerror = (error) => {
-                    console.error('SSE 連接錯誤:', error);
-                    this.connectionStatus.next('error');
-                    observer.error(error);
-                };
-                
-                // 返回清理函數
-                return () => {
-                    console.log('Observable 被取消訂閱，執行清理');
-                    this.disconnectLogStream();
-                };
-                
-            }, 100); // 100ms 延遲確保舊連接清理完成
         });
     }
 
     /**
-     * 更新串流過濾條件
+     * 開始增量輪詢
      */
-    updateStreamFilter(criteria: LogQueryCriteria): Observable<string> {
-        if (!this.connectionId) {
-            throw new Error('沒有活躍的串流連接');
-        }
-        
-        return this.http.put<string>(
-            `${this.apiUrl}/batch/optimized-logs/stream/${this.connectionId}/filter`, 
-            criteria,
-            { responseType: 'text' as 'json' }
-        );
+    private startIncrementalPolling(): void {
+        console.log('⏰ 開始增量輪詢，間隔 5 秒');
+
+        this.pollingInterval = setInterval(() => {
+            this.executeIncrementalQuery();
+        }, 5000);
     }
 
     /**
-     * 關閉串流連接
+     * 執行增量查詢
      */
-    closeStream(): Observable<string> {
-        if (!this.connectionId) {
-            return new Observable(observer => {
-                observer.next('沒有活躍的連接');
-                observer.complete();
-            });
+    private executeIncrementalQuery(): void {
+        if (!this.currentCriteria || this.lastLogId === undefined) {
+            console.log('⏭️ 跳過增量查詢：條件不足');
+            return;
         }
 
-        return this.http.delete<string>(
-            `${this.apiUrl}/batch/optimized-logs/stream/${this.connectionId}`,
-            { responseType: 'text' as 'json' }
-        );
-    }
+        const incrementalCriteria: LogQueryCriteria = {
+            ...this.currentCriteria,
+            lastId: this.lastLogId, // 🔥 使用 lastId 而不是 lastLogId
+            sortDirection: 'ASC', // 增量查詢用升序
+            limit: 50,
+            // 清除時間條件，因為用ID查詢更精確
+            startTime: undefined,
+            endTime: undefined
+        };
 
-    /**
-     * 獲取串流狀態
-     */
-    getStreamStatus(): Observable<SseConnectionStatus> {
-        return this.http.get<SseConnectionStatus>(`${this.apiUrl}/batch/optimized-logs/stream/status`);
-    }
+        console.log('🔄 執行增量查詢，lastId:', this.lastLogId);
 
-    /**
-     * 獲取日誌統計
-     */
-    getLogStats(executionId: string): Observable<LogStatsResponse> {
-        return this.http.get<LogStatsResponse>(`${this.apiUrl}/batch/optimized-logs/stats/${executionId}`);
-    }
-
-    /**
-     * 斷開 SSE 連接
-     */
-    disconnectLogStream(): void {
-        if (this.eventSource) {
-            console.log('正在關閉 SSE 連接，當前狀態:', this.eventSource.readyState);
-            
-            // 如果有連接ID，主動通知後端關閉連接
-            if (this.connectionId) {
-                console.log('主動通知後端關閉連接:', this.connectionId);
-                this.http.delete(`${this.apiUrl}/batch/optimized-logs/stream/${this.connectionId}`)
-                    .subscribe({
-                        next: (response) => {
-                            console.log('後端連接已關閉:', response);
-                        },
-                        error: (error) => {
-                            console.warn('通知後端關閉連接失敗:', error);
-                        }
-                    });
+        this.queryLogsPost(incrementalCriteria).subscribe({
+            next: (newLogs) => {
+                if (newLogs && newLogs.length > 0) {
+                    console.log('📨 收到新日誌:', newLogs.length, '條');
+                    this.handleIncrementalLogs(newLogs);
+                } else {
+                    console.log('📭 無新日誌');
+                }
+                this.connectionStatus.next('connected');
+            },
+            error: (error) => {
+                console.error('❌ 增量查詢失敗:', error);
+                this.connectionStatus.next('error');
             }
-            
-            // 移除所有事件監聽器
-            this.eventSource.onopen = null;
-            this.eventSource.onmessage = null;
-            this.eventSource.onerror = null;
-            
-            // 關閉連接
-            this.eventSource.close();
-            this.eventSource = null;
-            this.connectionId = null;
-            
-            // 更新連接狀態
-            this.connectionStatus.next('disconnected');
-            console.log('SSE 連接已關閉並清理');
-        } else {
-            console.log('沒有活躍的 SSE 連接需要關閉');
+        });
+    }
+
+    /**
+     * 處理增量日誌
+     */
+    private handleIncrementalLogs(newLogs: BatchLog[]): void {
+        // 🔥 添加新日誌到累積列表的末尾（保持時間順序）
+        this.accumulatedLogs.push(...newLogs);
+
+        // 🔥 更新最後的日誌ID
+        const maxId = Math.max(...newLogs.map(log => log.id || 0));
+        this.lastLogId = Math.max(this.lastLogId || 0, maxId);
+
+        console.log('📝 更新 lastLogId:', this.lastLogId);
+
+        // 🔥 內存管理：保持最多 MAX_LOGS_IN_MEMORY 條日誌
+        if (this.accumulatedLogs.length > this.MAX_LOGS_IN_MEMORY) {
+            const removeCount = this.accumulatedLogs.length - this.MAX_LOGS_IN_MEMORY;
+            this.accumulatedLogs.splice(0, removeCount);
+            console.log('🧹 清理舊日誌:', removeCount, '條，剩餘:', this.accumulatedLogs.length);
         }
+
+        // 🔥 發送更新的日誌列表（降序顯示，最新在上）
+        const displayLogs = [...this.accumulatedLogs].reverse();
+        this.logsSubject.next(displayLogs);
+    }
+
+    /**
+     * 構建完整的查詢條件
+     */
+    private buildFullCriteria(criteria?: Partial<LogQueryCriteria>): LogQueryCriteria {
+        return {
+            executionId: criteria?.executionId,
+            jobName: criteria?.jobName,
+            stepName: criteria?.stepName,
+            logLevels: criteria?.logLevels,
+            keyword: criteria?.keyword,
+            startTime: criteria?.startTime,
+            endTime: criteria?.endTime,
+            sortDirection: 'DESC',
+            queryType: 'REAL_TIME',
+            limit: 100,
+            ...criteria
+        };
+    }
+
+    /**
+     * 更新輪詢過濾條件
+     */
+    updatePollingFilter(criteria: Partial<LogQueryCriteria>): void {
+        console.log('🔄 更新輪詢過濾條件:', criteria);
+
+        // 🔥 重新開始輪詢，因為條件變了
+        this.startPollingLogs(criteria);
+    }
+
+    /**
+     * 停止輪詢
+     */
+    stopPollingLogs(): void {
+        if (this.pollingInterval) {
+            console.log('⏹️ 停止日誌輪詢');
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+            this.connectionStatus.next('disconnected');
+        }
+    }
+
+    /**
+     * 手動刷新
+     */
+    refresh(): void {
+        console.log('🔄 手動刷新');
+        if (this.currentCriteria) {
+            this.startPollingLogs(this.currentCriteria);
+        }
+    }
+
+    /**
+     * 清空日誌顯示
+     */
+    clearLogs(): void {
+        console.log('🧹 清空日誌顯示');
+        this.resetPollingState();
+    }
+
+    /**
+     * 獲取輪詢狀態
+     */
+    getPollingStatus(): {
+        isPolling: boolean;
+        criteria: LogQueryCriteria | null;
+        logCount: number;
+        lastLogId?: number;
+    } {
+        return {
+            isPolling: this.pollingInterval !== null,
+            criteria: this.currentCriteria,
+            logCount: this.accumulatedLogs.length,
+            lastLogId: this.lastLogId
+        };
     }
 
     /**
@@ -242,15 +294,24 @@ export class OptimizedLogService {
     }
 
     /**
-     * 檢查是否已連接
+     * 檢查是否正在輪詢
      */
     isConnected(): boolean {
-        return this.eventSource?.readyState === EventSource.OPEN;
+        return this.pollingInterval !== null;
     }
 
     /**
-     * 將舊的 LogFilterOptions 轉換為新的 LogQueryCriteria
+     * 斷開輪詢連接（相容性方法）
      */
+    disconnectLogStream(): void {
+        this.stopPollingLogs();
+    }
+
+    // 🔥 其他方法保持不變
+    getLogStats(executionId: string): Observable<LogStatsResponse> {
+        return this.http.get<LogStatsResponse>(`${this.apiUrl}/batch/optimized-logs/stats/${executionId}`);
+    }
+
     convertFilterToCriteria(filter: LogFilterOptions): LogQueryCriteria {
         return {
             executionId: filter.executionId,
@@ -266,9 +327,6 @@ export class OptimizedLogService {
         };
     }
 
-    /**
-     * 建立快速查詢條件
-     */
     createQuickCriteria(type: 'recent' | 'errors' | 'warnings', jobName?: string): LogQueryCriteria {
         const now = new Date();
         const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -296,4 +354,4 @@ export class OptimizedLogService {
                 return baseCriteria;
         }
     }
-} 
+}
