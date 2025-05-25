@@ -28,7 +28,8 @@ public class OptimizedLogStreamService {
     
     private final Map<String, SseConnection> activeConnections = new ConcurrentHashMap<>();
     private final Map<String, ScheduledFuture<?>> pollingTasks = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+    private final Map<String, ScheduledFuture<?>> heartbeatTasks = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
     
     // 添加連接清理任務
     private ScheduledFuture<?> cleanupTask;
@@ -57,6 +58,9 @@ public class OptimizedLogStreamService {
         if (shouldStartPolling(criteria)) {
             startPolling(connectionId);
         }
+        
+        // 啟動心跳機制
+        startHeartbeat(connectionId);
 
         log.info("SSE 連接已建立: {}, 總連接數: {}, 超時設定: 30分鐘", connectionId, activeConnections.size());
         return emitter;
@@ -131,10 +135,51 @@ public class OptimizedLogStreamService {
             } catch (Exception e) {
                 log.error("輪詢失敗: {}, 錯誤: {}", connectionId, e.getMessage());
             }
-        }, 1, 2, TimeUnit.SECONDS);
+        }, 3, 3, TimeUnit.SECONDS);
         
         pollingTasks.put(connectionId, pollingTask);
         log.info("開始輪詢任務: {}", connectionId);
+    }
+    
+    /**
+     * 啟動心跳機制
+     * 每30秒發送一次心跳，檢查連接是否還活著
+     */
+    private void startHeartbeat(String connectionId) {
+        ScheduledFuture<?> heartbeatTask = scheduler.scheduleWithFixedDelay(() -> {
+            SseConnection connection = activeConnections.get(connectionId);
+            if (connection == null) {
+                log.debug("連接已關閉，停止心跳: {}", connectionId);
+                return;
+            }
+            
+            try {
+                // 發送心跳事件
+                Map<String, Object> heartbeat = Map.of(
+                    "type", "heartbeat",
+                    "timestamp", LocalDateTime.now(),
+                    "connectionId", connectionId
+                );
+                
+                connection.emitter.send(SseEmitter.event().name("heartbeat").data(heartbeat));
+                connection.lastHeartbeatTime = LocalDateTime.now();
+                log.debug("發送心跳成功: {}", connectionId);
+                
+            } catch (IOException e) {
+                log.warn("心跳發送失敗，連接可能已斷開，清理連接: {}", connectionId, e);
+                cleanupConnection(connectionId);
+            } catch (Exception e) {
+                log.error("心跳發送異常: {}, 錯誤: {}", connectionId, e.getMessage());
+                // 如果是嚴重錯誤，也清理連接
+                if (e instanceof IllegalStateException) {
+                    log.warn("連接狀態異常，清理連接: {}", connectionId);
+                    cleanupConnection(connectionId);
+                }
+            }
+        }, 30, 30, TimeUnit.SECONDS);  // 首次延遲30秒，然後每30秒執行一次
+        
+        heartbeatTasks.put(connectionId, heartbeatTask);
+        log.info("啟動心跳任務: {}", connectionId);
     }
     
     public void updateFilter(String connectionId, LogQueryCriteria newCriteria) {
@@ -151,10 +196,18 @@ public class OptimizedLogStreamService {
     private void cleanupConnection(String connectionId) {
         SseConnection connection = activeConnections.remove(connectionId);
         
+        // 清理輪詢任務
         ScheduledFuture<?> pollingTask = pollingTasks.remove(connectionId);
         if (pollingTask != null && !pollingTask.isCancelled()) {
             boolean cancelled = pollingTask.cancel(true);
             log.info("輪詢任務已取消: {}, 成功: {}", connectionId, cancelled);
+        }
+        
+        // 清理心跳任務
+        ScheduledFuture<?> heartbeatTask = heartbeatTasks.remove(connectionId);
+        if (heartbeatTask != null && !heartbeatTask.isCancelled()) {
+            boolean cancelled = heartbeatTask.cancel(true);
+            log.info("心跳任務已取消: {}, 成功: {}", connectionId, cancelled);
         }
         
         if (connection != null) {
@@ -165,8 +218,8 @@ public class OptimizedLogStreamService {
             }
         }
         
-        log.info("連接已完全清理: {}, 剩餘活躍連接: {}, 剩餘輪詢任務: {}", 
-                connectionId, activeConnections.size(), pollingTasks.size());
+        log.info("連接已完全清理: {}, 剩餘活躍連接: {}, 剩餘輪詢任務: {}, 剩餘心跳任務: {}", 
+                connectionId, activeConnections.size(), pollingTasks.size(), heartbeatTasks.size());
     }
     
     public void closeConnection(String connectionId) {
@@ -182,9 +235,13 @@ public class OptimizedLogStreamService {
         return pollingTasks.size();
     }
     
+    public int getActiveHeartbeatTaskCount() {
+        return heartbeatTasks.size();
+    }
+    
     public void cleanupAllConnections() {
-        log.info("清理所有連接，當前連接數: {}, 輪詢任務數: {}", 
-                activeConnections.size(), pollingTasks.size());
+        log.info("清理所有連接，當前連接數: {}, 輪詢任務數: {}, 心跳任務數: {}", 
+                activeConnections.size(), pollingTasks.size(), heartbeatTasks.size());
         
         Set<String> connectionIds = new HashSet<>(activeConnections.keySet());
         for (String connectionId : connectionIds) {
@@ -195,8 +252,8 @@ public class OptimizedLogStreamService {
     }
     
     private void cleanupDeadConnections() {
-        log.info("清理死連接，當前連接數: {}, 輪詢任務數: {}", 
-                activeConnections.size(), pollingTasks.size());
+        log.info("清理死連接，當前連接數: {}, 輪詢任務數: {}, 心跳任務數: {}", 
+                activeConnections.size(), pollingTasks.size(), heartbeatTasks.size());
         
         Set<String> connectionIds = new HashSet<>(activeConnections.keySet());
         for (String connectionId : connectionIds) {
@@ -221,11 +278,13 @@ public class OptimizedLogStreamService {
         final SseEmitter emitter;
         LogQueryCriteria criteria;
         LocalDateTime lastQueryTime;
+        LocalDateTime lastHeartbeatTime;
         
         SseConnection(SseEmitter emitter, LogQueryCriteria criteria, LocalDateTime lastQueryTime) {
             this.emitter = emitter;
             this.criteria = criteria;
             this.lastQueryTime = lastQueryTime;
+            this.lastHeartbeatTime = LocalDateTime.now();
         }
     }
 }

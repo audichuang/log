@@ -56,47 +56,4 @@ public class BatchLogService {
     public void saveLog(String executionId, String jobName, String logLevel, String message) {
         saveLog(executionId, jobName, null, logLevel, message, null, null, null);
     }
-
-
-
-    /**
-     * 查詢指定執行代號的錯誤日誌
-     */
-    @Transactional(readOnly = true)
-    public List<BatchLogEntity> getErrorLogs(String executionId) {
-//        return batchLogRepository.findErrorLogsByExecutionId(executionId);
-        return null;
-    }
-
-    /**
-     * 根據時間範圍查詢日誌
-     */
-    @Transactional(readOnly = true)
-    public List<BatchLogEntity> getLogsByTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
-        return null;
-//        return batchLogRepository.findByLogTimeBetween(startTime, endTime);
-    }
-
-    /**
-     * 統計執行代號的日誌數量按級別分組
-     */
-    @Transactional(readOnly = true)
-    public List<Object[]> getLogCountByLevel(String executionId) {
-        return batchLogRepository.countLogsByLevelForExecution(executionId);
-    }
-
-    /**
-     * 清理舊日誌（保留指定天數）
-     */
-    @Transactional
-    public void cleanOldLogs(int retentionDays) {
-        try {
-            LocalDateTime cutoffDate = LocalDateTime.now().minusDays(retentionDays);
-//            batchLogRepository.deleteOldLogs(cutoffDate);
-
-            log.info("Successfully cleaned old logs before: {}", cutoffDate);
-        } catch (Exception e) {
-            log.error("Failed to clean old logs", e);
-        }
-    }
 }

@@ -121,6 +121,18 @@ export class OptimizedLogService {
                     }
                 });
 
+                // 處理心跳事件
+                this.eventSource.addEventListener('heartbeat', (event: any) => {
+                    try {
+                        const heartbeat = JSON.parse(event.data);
+                        console.log('收到心跳:', heartbeat.timestamp);
+                        // 更新連接狀態為活躍
+                        this.connectionStatus.next('connected');
+                    } catch (error) {
+                        console.warn('解析心跳數據失敗:', error);
+                    }
+                });
+
                 this.eventSource.onerror = (error) => {
                     console.error('SSE 連接錯誤:', error);
                     this.connectionStatus.next('error');
