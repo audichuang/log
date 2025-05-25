@@ -22,7 +22,7 @@ export class LogDialogComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['logTime', 'logLevel', 'message', 'threadName'];
+  displayedColumns: string[] = ['logTime', 'logLevel', 'executionId', 'message', 'threadName'];
   dataSource = new MatTableDataSource<BatchLog>();
 
   isLoading = false;
@@ -161,23 +161,48 @@ export class LogDialogComponent implements OnInit, OnDestroy {
   }
 
   loadExecutions(): void {
-    if (!this.data.job.name) return;
+    if (!this.data.job.name) {
+      console.log('loadExecutions: 沒有作業名稱');
+      return;
+    }
     
+    console.log('loadExecutions: 開始載入執行記錄，作業名稱:', this.data.job.name);
     this.isLoadingExecutions = true;
-    this.batchService.getJobExecutions(this.data.job.name)
+    
+    // 同時調用兩個API：執行歷史和執行代號
+    const executions$ = this.batchService.getJobExecutions(this.data.job.name);
+    const executionIds$ = this.batchService.getJobExecutionIds(this.data.job.name);
+    
+    console.log('loadExecutions: 準備調用API...');
+    
+    combineLatest([executions$, executionIds$])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (executions) => {
-          this.availableExecutions = executions.map(exec => ({
-            executionId: exec.executionId,
-            executionTime: exec.startTime,
-            status: exec.status
-          }));
+        next: ([executions, executionIds]) => {
+          console.log('loadExecutions: API回應成功');
+          console.log('executions:', executions.length, '個');
+          console.log('executionIds:', executionIds.length, '個');
+          
+          // 建立執行代號到執行記錄的映射
+          const executionMap = new Map(executions.map(exec => [exec.executionId, exec]));
+          
+          // 組合資料，優先使用執行代號列表（因為可能有更多）
+          this.availableExecutions = executionIds.map(executionId => {
+            const execution = executionMap.get(executionId);
+            return {
+              executionId: executionId,
+              executionTime: execution?.startTime || '-',
+              status: execution?.status || 'UNKNOWN'
+            };
+          });
+          
+          console.log('loadExecutions: 最終可用執行記錄:', this.availableExecutions.length, '個');
+          console.log('loadExecutions: availableExecutions:', this.availableExecutions.slice(0, 3));
           this.isLoadingExecutions = false;
         },
         error: (error) => {
-          console.error('載入執行記錄失敗:', error);
-          this.error = '載入執行記錄失敗';
+          console.error('loadExecutions: API調用失敗:', error);
+          this.error = '載入執行記錄失敗: ' + (error.message || error);
           this.isLoadingExecutions = false;
         }
       });

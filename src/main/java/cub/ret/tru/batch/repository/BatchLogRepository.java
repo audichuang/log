@@ -27,4 +27,8 @@ public interface BatchLogRepository extends JpaRepository<BatchLogEntity, Long>,
     // 統計查詢
     @Query("SELECT bl.logLevel, COUNT(bl) FROM BatchLogEntity bl WHERE bl.executionId = :executionId GROUP BY bl.logLevel")
     List<Object[]> countLogsByLevelForExecution(@Param("executionId") String executionId);
+
+    // 查詢特定作業的所有執行代號
+    @Query("SELECT DISTINCT bl.executionId FROM BatchLogEntity bl WHERE bl.jobName = :jobName ORDER BY bl.executionId DESC")
+    List<String> findDistinctExecutionIdsByJobName(@Param("jobName") String jobName);
 }

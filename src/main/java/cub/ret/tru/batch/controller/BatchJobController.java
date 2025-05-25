@@ -1,5 +1,6 @@
 package cub.ret.tru.batch.controller;
 
+import cub.ret.tru.batch.dto.JobExecutionIdsRequest;
 import cub.ret.tru.batch.entity.BatchExecutionEntity;
 import cub.ret.tru.batch.entity.BatchJobEntity;
 import cub.ret.tru.batch.service.BatchJobService;
@@ -136,6 +137,25 @@ public class BatchJobController {
             return ResponseEntity.ok(executions);
         } catch (Exception e) {
             log.error("查詢作業執行歷史失敗: {}", jobName, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 查詢特定作業的所有執行代號
+     */
+    @PostMapping("/jobs/execution-ids")
+    public ResponseEntity<List<String>> getJobExecutionIds(@RequestBody JobExecutionIdsRequest request) {
+        try {
+            if (request.getJobName() == null || request.getJobName().trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            List<String> executionIds = batchJobService.getJobExecutionIds(request.getJobName());
+            log.info("查詢到作業 {} 的執行代號: {} 個", request.getJobName(), executionIds.size());
+            return ResponseEntity.ok(executionIds);
+        } catch (Exception e) {
+            log.error("查詢作業執行代號失敗: {}", request.getJobName(), e);
             return ResponseEntity.internalServerError().build();
         }
     }

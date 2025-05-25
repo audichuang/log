@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { BatchLog, LogFilter, LogStats, BatchJob, BatchExecution } from '../models/batch-log.model';
 
@@ -43,6 +44,22 @@ export class BatchService {
     getJobExecutions(jobName: string): Observable<BatchExecution[]> {
         // 真實 API 調用
         return this.http.get<BatchExecution[]>(`${this.apiUrl}/batch/jobs/${jobName}/executions`);
+    }
+
+    /**
+     * 查詢特定作業的所有執行代號
+     */
+    getJobExecutionIds(jobName: string): Observable<string[]> {
+        console.log('BatchService.getJobExecutionIds: 調用API，作業名稱:', jobName);
+        const requestBody = { jobName: jobName };
+        console.log('BatchService.getJobExecutionIds: 請求體:', requestBody);
+        console.log('BatchService.getJobExecutionIds: API URL:', `${this.apiUrl}/batch/jobs/execution-ids`);
+        
+        return this.http.post<string[]>(`${this.apiUrl}/batch/jobs/execution-ids`, requestBody)
+          .pipe(
+            tap(response => console.log('BatchService.getJobExecutionIds: 成功回應:', response.length, '個執行代號')),
+            tap(response => console.log('BatchService.getJobExecutionIds: 前3個:', response.slice(0, 3)))
+          );
     }
 
     /**

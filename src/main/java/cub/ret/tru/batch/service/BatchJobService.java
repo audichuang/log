@@ -4,6 +4,7 @@ import cub.ret.tru.batch.entity.BatchExecutionEntity;
 import cub.ret.tru.batch.entity.BatchJobEntity;
 import cub.ret.tru.batch.repository.BatchExecutionRepository;
 import cub.ret.tru.batch.repository.BatchJobRepository;
+import cub.ret.tru.batch.repository.BatchLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
@@ -28,6 +29,7 @@ public class BatchJobService {
 
     private final BatchJobRepository batchJobRepository;
     private final BatchExecutionRepository batchExecutionRepository;
+    private final BatchLogRepository batchLogRepository;
     private final JobLauncher jobLauncher;
     private final ApplicationContext applicationContext;
 
@@ -165,5 +167,13 @@ public class BatchJobService {
      */
     public List<BatchExecutionEntity> getJobExecutions(String jobName) {
         return batchExecutionRepository.findByJobNameOrderByStartTimeDesc(jobName);
+    }
+
+    /**
+     * 查詢特定作業的所有執行代號
+     */
+    public List<String> getJobExecutionIds(String jobName) {
+        log.info("查詢作業執行代號: {}", jobName);
+        return batchLogRepository.findDistinctExecutionIdsByJobName(jobName);
     }
 }
